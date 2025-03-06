@@ -1,0 +1,25 @@
+################################################################################
+# Automatically-generated file. Do not edit!
+# Toolchain: GNU Tools for STM32 (9-2020-q2-update)
+################################################################################
+
+# Add inputs and outputs from these tool invocations to the build variables 
+C_SRCS += \
+../Drivers/BSP/Components/lsm6dsr/lsm6dsr.c \
+../Drivers/BSP/Components/lsm6dsr/lsm6dsr_reg.c 
+
+OBJS += \
+./Drivers/BSP/Components/lsm6dsr/lsm6dsr.o \
+./Drivers/BSP/Components/lsm6dsr/lsm6dsr_reg.o 
+
+C_DEPS += \
+./Drivers/BSP/Components/lsm6dsr/lsm6dsr.d \
+./Drivers/BSP/Components/lsm6dsr/lsm6dsr_reg.d 
+
+
+# Each subdirectory must supply rules for building sources it contributes
+Drivers/BSP/Components/lsm6dsr/lsm6dsr.o: ../Drivers/BSP/Components/lsm6dsr/lsm6dsr.c Drivers/BSP/Components/lsm6dsr/subdir.mk
+	arm-none-eabi-gcc "$<" -mcpu=cortex-m4 -std=gnu11 -g3 -DUSE_HAL_DRIVER -DSTM32F401xC -DDEBUG -c -I../Drivers/CMSIS/Include -I../Drivers/BSP/Components/lsm6dsr -I../Drivers/BSP/Components/lps22hh -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Core/Inc -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../X-CUBE-MEMS1/Target -I"C:/Users/gmessina/OneDrive - STMicroelectronics/Drones/Development/Source_Code/STEVALFCU01V2/Middlewares/Include" -I"C:/Users/gmessina/OneDrive - STMicroelectronics/Drones/Development/Source_Code/STEVALFCU01V2/Drivers/BSP/Components/BLE" -I"C:/Users/gmessina/OneDrive - STMicroelectronics/Drones/Development/Source_Code/STEVALFCU01V2/Middlewares/HCI" -I"C:/Users/gmessina/OneDrive - STMicroelectronics/Drones/Development/Source_Code/STEVALFCU01V2/Middlewares/HCI/Controller" -I"C:/Users/gmessina/OneDrive - STMicroelectronics/Drones/Development/Source_Code/STEVALFCU01V2/Middlewares/Interface" -I"C:/Users/gmessina/OneDrive - STMicroelectronics/Drones/Development/Source_Code/STEVALFCU01V2/Middlewares/Utils" -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -MMD -MP -MF"Drivers/BSP/Components/lsm6dsr/lsm6dsr.d" -MT"$@" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "$@"
+Drivers/BSP/Components/lsm6dsr/lsm6dsr_reg.o: ../Drivers/BSP/Components/lsm6dsr/lsm6dsr_reg.c Drivers/BSP/Components/lsm6dsr/subdir.mk
+	arm-none-eabi-gcc "$<" -mcpu=cortex-m4 -std=gnu11 -g3 -DUSE_HAL_DRIVER -DSTM32F401xC -DDEBUG -c -I../Drivers/CMSIS/Include -I../Drivers/BSP/Components/lsm6dsr -I../Drivers/BSP/Components/lps22hh -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Core/Inc -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../X-CUBE-MEMS1/Target -I"C:/Users/gmessina/OneDrive - STMicroelectronics/Drones/Development/Source_Code/STEVALFCU01V2/Middlewares/Include" -I"C:/Users/gmessina/OneDrive - STMicroelectronics/Drones/Development/Source_Code/STEVALFCU01V2/Drivers/BSP/Components/BLE" -I"C:/Users/gmessina/OneDrive - STMicroelectronics/Drones/Development/Source_Code/STEVALFCU01V2/Middlewares/HCI" -I"C:/Users/gmessina/OneDrive - STMicroelectronics/Drones/Development/Source_Code/STEVALFCU01V2/Middlewares/HCI/Controller" -I"C:/Users/gmessina/OneDrive - STMicroelectronics/Drones/Development/Source_Code/STEVALFCU01V2/Middlewares/Interface" -I"C:/Users/gmessina/OneDrive - STMicroelectronics/Drones/Development/Source_Code/STEVALFCU01V2/Middlewares/Utils" -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -MMD -MP -MF"Drivers/BSP/Components/lsm6dsr/lsm6dsr_reg.d" -MT"$@" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "$@"
+
