@@ -21,7 +21,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "stdio.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -40,6 +40,8 @@
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
+I2C_HandleTypeDef hi2c1;
+
 UART_HandleTypeDef huart5;
 
 /* USER CODE BEGIN PV */
@@ -50,6 +52,7 @@ UART_HandleTypeDef huart5;
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_UART5_Init(void);
+static void MX_I2C1_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -89,14 +92,60 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_UART5_Init();
+  MX_I2C1_Init();
   /* USER CODE BEGIN 2 */
+	#define SAD_W_M 0x32
+	#define SAD_R_M 0x33
+  	HAL_StatusTypeDef ret;
+  	uint8_t rbuf[10] = {0x00};
+  	uint8_t wbuf[10]= {0x20};//IRA_REG_M returns 0x48
+  	wbuf[1] = 0x97;
+  	ret = HAL_I2C_Master_Transmit(&hi2c1, SAD_W_M, &wbuf[0], 2, 1000);
 
+  	wbuf[0] = 0x21;
+  	wbuf[1] = 0x00;
+  	ret = HAL_I2C_Master_Transmit(&hi2c1, SAD_W_M, &wbuf, 2, 1000);
+
+  	wbuf[0] = 0x22;
+  	wbuf[1] = 0x00;
+  	ret = HAL_I2C_Master_Transmit(&hi2c1, SAD_W_M, &wbuf, 2, 1000);
+
+  	wbuf[0] = 0x28;
+  	wbuf[1] = 0x29;
+  	wbuf[2] = 0x2A;
+  	wbuf[3] = 0x2B;
+  	wbuf[4] = 0x2C;
+  	wbuf[5] = 0x2D;
+
+  	int16_t x = 0;
+  	int16_t y = 0;
+  	int16_t z = 0;
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+	  ret = HAL_I2C_Master_Transmit(&hi2c1, SAD_W_M, &wbuf[0], 1, 1000);
+	  ret = HAL_I2C_Master_Receive(&hi2c1, SAD_R_M, &rbuf[0], 1, 1000);
+	  ret = HAL_I2C_Master_Transmit(&hi2c1, SAD_W_M, &wbuf[1], 1, 1000);
+	  ret = HAL_I2C_Master_Receive(&hi2c1, SAD_R_M, &rbuf[1], 1, 1000);
+	  x = (rbuf[1] << 8) | rbuf[0];
+	  ret = HAL_I2C_Master_Transmit(&hi2c1, SAD_W_M, &wbuf[2], 1, 1000);
+	  ret = HAL_I2C_Master_Receive(&hi2c1, SAD_R_M, &rbuf[2], 1, 1000);
+	  ret = HAL_I2C_Master_Transmit(&hi2c1, SAD_W_M, &wbuf[3], 1, 1000);
+	  ret = HAL_I2C_Master_Receive(&hi2c1, SAD_R_M, &rbuf[3], 1, 1000);
+	  y = (rbuf[3] << 8) | rbuf[2];
+	  ret = HAL_I2C_Master_Transmit(&hi2c1, SAD_W_M, &wbuf[4], 1, 1000);
+	  ret = HAL_I2C_Master_Receive(&hi2c1, SAD_R_M, &rbuf[4], 1, 1000);
+	  ret = HAL_I2C_Master_Transmit(&hi2c1, SAD_W_M, &wbuf[5], 1, 1000);
+	  ret = HAL_I2C_Master_Receive(&hi2c1, SAD_R_M, &rbuf[5], 1, 1000);
+	  z = (rbuf[5] << 8) | rbuf[4];
+
+	  printf("x axis %d raw, %f Gs\n", x, x/16600.0);
+	  printf("y axis %d raw, %f Gs\n", y, y/16300.0);
+	  printf("z axis %d raw, %f Gs\n\n", z, z/19100.0);
+	  HAL_Delay(700);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -146,6 +195,54 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
+}
+
+/**
+  * @brief I2C1 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_I2C1_Init(void)
+{
+
+  /* USER CODE BEGIN I2C1_Init 0 */
+
+  /* USER CODE END I2C1_Init 0 */
+
+  /* USER CODE BEGIN I2C1_Init 1 */
+
+  /* USER CODE END I2C1_Init 1 */
+  hi2c1.Instance = I2C1;
+  hi2c1.Init.Timing = 0x00100D14;
+  hi2c1.Init.OwnAddress1 = 0;
+  hi2c1.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
+  hi2c1.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
+  hi2c1.Init.OwnAddress2 = 0;
+  hi2c1.Init.OwnAddress2Masks = I2C_OA2_NOMASK;
+  hi2c1.Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
+  hi2c1.Init.NoStretchMode = I2C_NOSTRETCH_DISABLE;
+  if (HAL_I2C_Init(&hi2c1) != HAL_OK)
+  {
+    Error_Handler();
+  }
+
+  /** Configure Analogue filter
+  */
+  if (HAL_I2CEx_ConfigAnalogFilter(&hi2c1, I2C_ANALOGFILTER_ENABLE) != HAL_OK)
+  {
+    Error_Handler();
+  }
+
+  /** Configure Digital filter
+  */
+  if (HAL_I2CEx_ConfigDigitalFilter(&hi2c1, 0) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN I2C1_Init 2 */
+
+  /* USER CODE END I2C1_Init 2 */
+
 }
 
 /**
@@ -420,14 +517,6 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Alternate = GPIO_AF6_SPI3;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : PB8 PB9 */
-  GPIO_InitStruct.Pin = GPIO_PIN_8|GPIO_PIN_9;
-  GPIO_InitStruct.Mode = GPIO_MODE_AF_OD;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
-  GPIO_InitStruct.Alternate = GPIO_AF4_I2C1;
-  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
-
   /*Configure GPIO pin : PE0 */
   GPIO_InitStruct.Pin = GPIO_PIN_0;
   GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
@@ -441,7 +530,16 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
-
+#ifdef __GNUC__
+#define PUTCHAR_PROTOTYPE int __io_putchar(int ch)
+#else
+  #define PUTCHAR_PROTOTYPE int fputc(int ch, FILE *f)
+#endif /* __GNUC__ */
+PUTCHAR_PROTOTYPE
+{
+  HAL_UART_Transmit(&huart5, (uint8_t *)&ch, 1, 0xFFFF);
+  return ch;
+}
 /* USER CODE END 4 */
 
 /**

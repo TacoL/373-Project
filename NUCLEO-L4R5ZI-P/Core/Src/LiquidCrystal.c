@@ -1,114 +1,192 @@
 #include "LiquidCrystal.h"
+#include <stddef.h>
+#include <stdint.h>
+#include "stm32l4xx_hal.h"  // Make sure to include appropriate STM32 HAL header
 
-extern GPIO_TypeDef* GPIO_PORT[];
-extern uint16_t GPIO_PIN[];
+// Pins and LCD state variables
+static uint8_t _rs_pin, _rw_pin, _enable_pin;
+static uint8_t _data_pins[8];
+static uint8_t _displayfunction, _displaycontrol, _displaymode;
+static uint8_t _numlines;
+static uint8_t _row_offsets[4];
 
-void LiquidCrystal_Init(LiquidCrystal *lcd, uint8_t fourbitmode, uint8_t rs, uint8_t rw, uint8_t enable,
-                        uint8_t d0, uint8_t d1, uint8_t d2, uint8_t d3, uint8_t d4, uint8_t d5, uint8_t d6, uint8_t d7) {
-  lcd->rs_pin = rs;
-  lcd->rw_pin = rw;
-  lcd->enable_pin = enable;
-
-  lcd->data_pins[0] = d0;
-  lcd->data_pins[1] = d1;
-  lcd->data_pins[2] = d2;
-  lcd->data_pins[3] = d3;
-  lcd->data_pins[4] = d4;
-  lcd->data_pins[5] = d5;
-  lcd->data_pins[6] = d6;
-  lcd->data_pins[7] = d7;
-
-  if (fourbitmode)
-    lcd->display_function = LCD_4BITMODE | LCD_1LINE | LCD_5x8DOTS;
-  else
-    lcd->display_function = LCD_8BITMODE | LCD_1LINE | LCD_5x8DOTS;
-
-  LiquidCrystal_Begin(lcd, 16, 1, LCD_5x8DOTS);
+// Function to set row offsets
+void LiquidCrystal_setRowOffsets(int row0, int row1, int row2, int row3)
+{
+    _row_offsets[0] = row0;
+    _row_offsets[1] = row1;
+    _row_offsets[2] = row2;
+    _row_offsets[3] = row3;
 }
 
-void LiquidCrystal_Begin(LiquidCrystal *lcd, uint8_t cols, uint8_t rows, uint8_t charsize) {
-  if (rows > 1) {
-    lcd->display_function |= LCD_2LINE;
-  }
-  lcd->num_lines = rows;
+// Initialize LCD settings
+void LiquidCrystal_init(uint8_t rs, uint8_t rw, uint8_t enable,
+                        uint8_t d0, uint8_t d1, uint8_t d2, uint8_t d3,
+                        uint8_t d4, uint8_t d5, uint8_t d6, uint8_t d7)
+{
+    _rs_pin = rs;
+    _rw_pin = rw;
+    _enable_pin = enable;
 
-  LiquidCrystal_SetRowOffsets(lcd, 0x00, 0x40, 0x00 + cols, 0x40 + cols);
+    _data_pins[0] = d0;
+    _data_pins[1] = d1;
+    _data_pins[2] = d2;
+    _data_pins[3] = d3;
+    _data_pins[4] = d4;
+    _data_pins[5] = d5;
+    _data_pins[6] = d6;
+    _data_pins[7] = d7;
 
-  if (charsize != LCD_5x8DOTS && rows == 1) {
-    lcd->display_function |= LCD_5x10DOTS;
-  }
-
-  LiquidCrystal_PinWrite(lcd->rs_pin, GPIO_PIN_RESET);
-  LiquidCrystal_PinWrite(lcd->enable_pin, GPIO_PIN_RESET);
-  if (lcd->rw_pin != 255) {
-    LiquidCrystal_PinWrite(lcd->rw_pin, GPIO_PIN_RESET);
-  }
-
-  for (int i = 0; i < ((lcd->display_function & LCD_8BITMODE) ? 8 : 4); ++i) {
-    // Set all data pins as output
-    // Use STM32 HAL to configure GPIO pins
-    // GPIO_InitTypeDef GPIO_InitStruct;
-    // HAL_GPIO_Init(GPIO_PORT[lcd->data_pins[i]], &GPIO_InitStruct);
-  }
-
-  LiquidCrystal_Delay(50000);
-  if (!(lcd->display_function & LCD_8BITMODE)) {
-    LiquidCrystal_Write4Bits(lcd, 0x03);
-    LiquidCrystal_Delay(4500);
-    LiquidCrystal_Write4Bits(lcd, 0x03);
-    LiquidCrystal_Delay(4500);
-    LiquidCrystal_Write4Bits(lcd, 0x03);
-    LiquidCrystal_Delay(150);
-    LiquidCrystal_Write4Bits(lcd, 0x02);
-  } else {
-    LiquidCrystal_Command(lcd, LCD_FUNCTIONSET | lcd->display_function);
-    LiquidCrystal_Delay(4500);
-    LiquidCrystal_Command(lcd, LCD_FUNCTIONSET | lcd->display_function);
-    LiquidCrystal_Delay(150);
-    LiquidCrystal_Command(lcd, LCD_FUNCTIONSET | lcd->display_function);
-  }
-
-  LiquidCrystal_Command(lcd, LCD_FUNCTIONSET | lcd->display_function);
-  lcd->display_control = LCD_DISPLAYON | LCD_CURSOROFF | LCD_BLINKOFF;
-  LiquidCrystal_Display(lcd);
-  LiquidCrystal_Clear(lcd);
-  lcd->display_mode = LCD_ENTRYLEFT | LCD_ENTRYSHIFTDECREMENT;
-  LiquidCrystal_Command(lcd, LCD_ENTRYMODESET | lcd->display_mode);
+    _displayfunction = LCD_8BITMODE | LCD_1LINE | LCD_5x8DOTS;  // Default setup
 }
 
-void LiquidCrystal_Clear(LiquidCrystal *lcd) {
-  LiquidCrystal_Command(lcd, LCD_CLEARDISPLAY);
-  LiquidCrystal_Delay(2000);
+// Begin LCD configuration
+void LiquidCrystal_begin(uint8_t cols, uint8_t rows, uint8_t charsize)
+{
+    if (rows > 1)
+        _displayfunction |= LCD_2LINE;
+
+    _numlines = rows;
+    LiquidCrystal_setRowOffsets(0x00, 0x40, 0x00 + cols, 0x40 + cols);
+
+    // Initialization of GPIO pins
+    HAL_GPIO_WritePin(GPIOB, _rs_pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(GPIOB, _enable_pin, GPIO_PIN_RESET);
+    if (_rw_pin != 255)
+        HAL_GPIO_WritePin(GPIOB, _rw_pin, GPIO_PIN_RESET);
+
+    // Setting the data pins as output
+    for (int i = 0; i < ((_displayfunction & LCD_8BITMODE) ? 8 : 4); i++)
+        HAL_GPIO_WritePin(GPIOB, _data_pins[i], GPIO_PIN_RESET);
+
+    HAL_Delay(50);  // Wait 50ms after power on
+
+    // Sending initialization sequence
+    LiquidCrystal_send(0x03, 0);
+    HAL_Delay(5);
+    LiquidCrystal_send(0x03, 0);
+    HAL_Delay(5);
+    LiquidCrystal_send(0x03, 0);
+    HAL_Delay(1);
+    LiquidCrystal_send(0x02, 0);  // Set to 4-bit mode
+
+    // Set LCD function
+    LiquidCrystal_command(LCD_FUNCTIONSET | _displayfunction);
+    HAL_Delay(1);
+    LiquidCrystal_command(LCD_DISPLAYCONTROL | LCD_DISPLAYON | LCD_CURSOROFF | LCD_BLINKOFF);
+
+    // Clear the display
+    LiquidCrystal_clear();
+    // Set entry mode
+    LiquidCrystal_command(LCD_ENTRYMODESET | LCD_ENTRYLEFT | LCD_ENTRYSHIFTDECREMENT);
 }
 
-void LiquidCrystal_Home(LiquidCrystal *lcd) {
-  LiquidCrystal_Command(lcd, LCD_RETURNHOME);
-  LiquidCrystal_Delay(2000);
+// Clears the display
+void LiquidCrystal_clear(void)
+{
+    LiquidCrystal_command(LCD_CLEARDISPLAY);
+    HAL_Delay(2);  // Clear takes longer time
 }
 
-void LiquidCrystal_SetCursor(LiquidCrystal *lcd, uint8_t col, uint8_t row) {
-  const size_t max_lines = sizeof(lcd->row_offsets) / sizeof(*lcd->row_offsets);
-  if (row >= max_lines) {
-    row = max_lines - 1;
-  }
-  if (row >= lcd->num_lines) {
-    row = lcd->num_lines - 1;
-  }
-
-  LiquidCrystal_Command(lcd, LCD_SETDDRAMADDR | (col + lcd->row_offsets[row]));
+// Moves the cursor to the home position
+void LiquidCrystal_home(void)
+{
+    LiquidCrystal_command(LCD_RETURNHOME);
+    HAL_Delay(2);
 }
 
-// More functions can be implemented as needed, such as display, cursor, blinking, scrolling, etc.
+// Display on/off control
+void LiquidCrystal_noDisplay(void) { _displaycontrol &= ~LCD_DISPLAYON; LiquidCrystal_command(LCD_DISPLAYCONTROL | _displaycontrol); }
+void LiquidCrystal_display(void) { _displaycontrol |= LCD_DISPLAYON; LiquidCrystal_command(LCD_DISPLAYCONTROL | _displaycontrol); }
 
-// Low-level functions (Pin writes and delays)
-void LiquidCrystal_PinWrite(uint8_t pin, GPIO_PinState state) {
-  // Use STM32 HAL to write to a GPIO pin
-  HAL_GPIO_WritePin(GPIO_PORT[pin], GPIO_PIN[pin], state);
+// Blink control
+void LiquidCrystal_noBlink(void) { _displaycontrol &= ~LCD_BLINKON; LiquidCrystal_command(LCD_DISPLAYCONTROL | _displaycontrol); }
+void LiquidCrystal_blink(void) { _displaycontrol |= LCD_BLINKON; LiquidCrystal_command(LCD_DISPLAYCONTROL | _displaycontrol); }
+
+// Cursor control
+void LiquidCrystal_noCursor(void) { _displaycontrol &= ~LCD_CURSORON; LiquidCrystal_command(LCD_DISPLAYCONTROL | _displaycontrol); }
+void LiquidCrystal_cursor(void) { _displaycontrol |= LCD_CURSORON; LiquidCrystal_command(LCD_DISPLAYCONTROL | _displaycontrol); }
+
+// Scroll control
+void LiquidCrystal_scrollDisplayLeft(void) { LiquidCrystal_command(LCD_CURSORSHIFT | LCD_DISPLAYMOVE | LCD_MOVELEFT); }
+void LiquidCrystal_scrollDisplayRight(void) { LiquidCrystal_command(LCD_CURSORSHIFT | LCD_DISPLAYMOVE | LCD_MOVERIGHT); }
+
+// Text direction
+void LiquidCrystal_leftToRight(void) { LiquidCrystal_command(LCD_ENTRYMODESET | LCD_ENTRYLEFT); }
+void LiquidCrystal_rightToLeft(void) { LiquidCrystal_command(LCD_ENTRYMODESET | LCD_ENTRYRIGHT); }
+
+// Autoscroll text
+void LiquidCrystal_autoscroll(void) { LiquidCrystal_command(LCD_ENTRYMODESET | LCD_ENTRYSHIFTINCREMENT); }
+void LiquidCrystal_noAutoscroll(void) { LiquidCrystal_command(LCD_ENTRYMODESET | LCD_ENTRYSHIFTDECREMENT); }
+
+// Set custom character in CGRAM
+void LiquidCrystal_createChar(uint8_t location, uint8_t charmap[])
+{
+    location &= 0x7;  // We only have 8 locations 0-7
+    LiquidCrystal_command(LCD_SETCGRAMADDR | (location << 3));
+    for (int i = 0; i < 8; i++)
+    {
+        LiquidCrystal_write(charmap[i]);
+    }
 }
 
-void LiquidCrystal_Delay(uint32_t delay_us) {
-  // Use STM32 HAL to introduce a delay (using HAL_Delay or custom function)
-  HAL_Delay(delay_us / 1000);
+// Set cursor position
+void LiquidCrystal_setCursor(uint8_t col, uint8_t row)
+{
+    LiquidCrystal_command(LCD_SETDDRAMADDR | (col + _row_offsets[row]));
 }
 
-// Implement other low-level functions such as sending data, writing 4/8 bits, etc.
+// Send command to LCD
+void LiquidCrystal_command(uint8_t value)
+{
+    LiquidCrystal_send(value, 0);
+}
+
+// Write a value to LCD (data or command)
+void LiquidCrystal_write(uint8_t value)
+{
+    LiquidCrystal_send(value, 1);
+}
+
+// Send data/command to the LCD
+void LiquidCrystal_send(uint8_t value, uint8_t mode)
+{
+    HAL_GPIO_WritePin(GPIOB, _rs_pin, mode);  // Set RS pin
+    if (_rw_pin != 255)
+        HAL_GPIO_WritePin(GPIOB, _rw_pin, GPIO_PIN_RESET);  // Set RW pin low for write
+
+    if (_displayfunction & LCD_8BITMODE)
+        LiquidCrystal_write8bits(value);  // 8-bit mode
+    else
+        LiquidCrystal_write4bits(value >> 4);  // 4-bit mode
+        LiquidCrystal_write4bits(value);
+}
+
+// Write 4 bits to LCD
+void LiquidCrystal_write4bits(uint8_t value)
+{
+    for (int i = 0; i < 4; i++)
+        HAL_GPIO_WritePin(GPIOB, _data_pins[i], (value >> i) & 0x01);
+
+    LiquidCrystal_pulseEnable();
+}
+
+// Write 8 bits to LCD
+void LiquidCrystal_write8bits(uint8_t value)
+{
+    for (int i = 0; i < 8; i++)
+        HAL_GPIO_WritePin(GPIOB, _data_pins[i], (value >> i) & 0x01);
+
+    LiquidCrystal_pulseEnable();
+}
+
+// Pulse the enable pin to latch data
+void LiquidCrystal_pulseEnable(void)
+{
+    HAL_GPIO_WritePin(GPIOB, _enable_pin, GPIO_PIN_RESET);
+    HAL_Delay(1);  // Minimum pulse width is 450ns
+    HAL_GPIO_WritePin(GPIOB, _enable_pin, GPIO_PIN_SET);
+    HAL_Delay(1);
+    HAL_GPIO_WritePin(GPIOB, _enable_pin, GPIO_PIN_RESET);
+    HAL_Delay(1);  // Commands need more than 37 us to settle
+}
