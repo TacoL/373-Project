@@ -3,6 +3,10 @@
 
 #include <inttypes.h>
 
+// signal states
+#define LOW 0
+#define HIGH 1
+
 // commands
 #define LCD_CLEARDISPLAY 0x01
 #define LCD_RETURNHOME 0x02
@@ -41,38 +45,38 @@
 #define LCD_5x10DOTS 0x04
 #define LCD_5x8DOTS 0x00
 
-void init(uint8_t fourbitmode, uint8_t rs, uint8_t rw, uint8_t enable,
+void LiquidCrystal_init(uint8_t fourbitmode, uint8_t rs, uint8_t rw, uint8_t enable,
 	uint8_t d0, uint8_t d1, uint8_t d2, uint8_t d3,
 	uint8_t d4, uint8_t d5, uint8_t d6, uint8_t d7);
 
-void begin(uint8_t cols, uint8_t rows, uint8_t charsize); // Make charsize default value LCD_5x8DOTS
+void LiquidCrystal_begin(uint8_t cols, uint8_t rows, uint8_t charsize); // Make charsize default value LCD_5x8DOTS
 
-void clear();
-void home();
+void LiquidCrystal_clear();
+void LiquidCrystal_home();
 
-void noDisplay();
-void display();
-void noBlink();
-void blink();
-void noCursor();
-void cursor();
-void scrollDisplayLeft();
-void scrollDisplayRight();
-void leftToRight();
-void rightToLeft();
-void autoscroll();
-void noAutoscroll();
+void LiquidCrystal_noDisplay();
+void LiquidCrystal_display();
+void LiquidCrystal_noBlink();
+void LiquidCrystal_blink();
+void LiquidCrystal_noCursor();
+void LiquidCrystal_cursor();
+void LiquidCrystal_scrollDisplayLeft();
+void LiquidCrystal_scrollDisplayRight();
+void LiquidCrystal_leftToRight();
+void LiquidCrystal_rightToLeft();
+void LiquidCrystal_autoscroll();
+void LiquidCrystal_noAutoscroll();
 
-void setRowOffsets(int row1, int row2, int row3, int row4);
-void createChar(uint8_t, uint8_t[]);
-void setCursor(uint8_t, uint8_t);
-uint8_t write(uint8_t);
-void command(uint8_t);
+void LiquidCrystal_setRowOffsets(int row1, int row2, int row3, int row4);
+void LiquidCrystal_createChar(uint8_t, uint8_t[]);
+void LiquidCrystal_setCursor(uint8_t, uint8_t);
+uint8_t LiquidCrystal_write(uint8_t);
+void LiquidCrystal_command(uint8_t);
 
-void send(uint8_t, uint8_t);
-void write4bits(uint8_t);
-void write8bits(uint8_t);
-void pulseEnable();
+void LiquidCrystal_send(uint8_t, uint8_t);
+void LiquidCrystal_write4bits(uint8_t);
+void LiquidCrystal_write8bits(uint8_t);
+void LiquidCrystal_pulseEnable();
 
 uint8_t _rs_pin; // LOW: command. HIGH: character.
 uint8_t _rw_pin; // LOW: write to LCD. HIGH: read from LCD.
