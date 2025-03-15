@@ -1,6 +1,7 @@
 #ifndef LiquidCrystal_h
 #define LiquidCrystal_h
 
+#include "stm32l4xx_hal.h"
 #include <inttypes.h>
 
 // signal states
@@ -78,6 +79,7 @@ void LiquidCrystal_write4bits(uint8_t);
 void LiquidCrystal_write8bits(uint8_t);
 void LiquidCrystal_pulseEnable();
 
+// TODO: Use Cube UI to configure the following pins
 uint8_t _rs_pin; // LOW: command. HIGH: character.
 uint8_t _rw_pin; // LOW: write to LCD. HIGH: read from LCD.
 uint8_t _enable_pin; // activated by a HIGH pulse.

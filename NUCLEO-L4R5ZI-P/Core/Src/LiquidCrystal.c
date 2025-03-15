@@ -75,7 +75,7 @@ void LiquidCrystal_begin(uint8_t cols, uint8_t lines, uint8_t dotsize) {
   // SEE PAGE 45/46 FOR INITIALIZATION SPECIFICATION!
   // according to datasheet, we need at least 40 ms after power rises above 2.7 V
   // before sending commands. Arduino can turn on way before 4.5 V so we'll wait 50
-  delayMicroseconds(50000);
+  HAL_Delay(50);
   // Now we pull both RS and R/W low to begin commands
   digitalWrite(_rs_pin, LOW);
   digitalWrite(_enable_pin, LOW);
@@ -90,15 +90,15 @@ void LiquidCrystal_begin(uint8_t cols, uint8_t lines, uint8_t dotsize) {
 
     // we start in 8bit mode, try to set 4 bit mode
 	LiquidCrystal_write4bits(0x03);
-    delayMicroseconds(4500); // wait min 4.1ms
+	HAL_Delay(4.5); // wait min 4.1ms
 
     // second try
     LiquidCrystal_write4bits(0x03);
-    delayMicroseconds(4500); // wait min 4.1ms
+    HAL_Delay(4.5); // wait min 4.1ms
 
     // third go!
     LiquidCrystal_write4bits(0x03);
-    delayMicroseconds(150);
+    HAL_Delay(.15);
 
     // finally, set to 4-bit interface
     LiquidCrystal_write4bits(0x02);
@@ -108,11 +108,11 @@ void LiquidCrystal_begin(uint8_t cols, uint8_t lines, uint8_t dotsize) {
 
     // Send function set command sequence
 	LiquidCrystal_command(LCD_FUNCTIONSET | _displayfunction);
-    delayMicroseconds(4500);  // wait more than 4.1 ms
+	HAL_Delay(4.5);  // wait more than 4.1 ms
 
     // second try
     LiquidCrystal_command(LCD_FUNCTIONSET | _displayfunction);
-    delayMicroseconds(150);
+    HAL_Delay(.15);
 
     // third go
     LiquidCrystal_command(LCD_FUNCTIONSET | _displayfunction);
@@ -147,13 +147,13 @@ void LiquidCrystal_setRowOffsets(int row0, int row1, int row2, int row3)
 void LiquidCrystal_clear()
 {
   LiquidCrystal_command(LCD_CLEARDISPLAY);  // clear display, set cursor position to zero
-  delayMicroseconds(2000);  // this command takes a long time!
+  HAL_Delay(2);  // this command takes a long time!
 }
 
 void LiquidCrystal_home()
 {
   LiquidCrystal_command(LCD_RETURNHOME);  // set cursor position to zero
-  delayMicroseconds(2000);  // this command takes a long time!
+  HAL_Delay(2);  // this command takes a long time!
 }
 
 void LiquidCrystal_setCursor(uint8_t col, uint8_t row)
@@ -273,11 +273,11 @@ void LiquidCrystal_send(uint8_t value, uint8_t mode) {
 
 void LiquidCrystal_pulseEnable(void) {
   digitalWrite(_enable_pin, LOW);
-  delayMicroseconds(1);
+  HAL_Delay(0.001);
   digitalWrite(_enable_pin, HIGH);
-  delayMicroseconds(1);    // enable pulse must be >450 ns
+  HAL_Delay(0.001);    // enable pulse must be >450 ns
   digitalWrite(_enable_pin, LOW);
-  delayMicroseconds(100);   // commands need >37 us to settle
+  HAL_Delay(0.1);   // commands need >37 us to settle
 }
 
 void LiquidCrystal_write4bits(uint8_t value) {
