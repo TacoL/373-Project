@@ -90,15 +90,15 @@ void LiquidCrystal_begin(uint8_t cols, uint8_t lines, uint8_t dotsize) {
 
     // we start in 8bit mode, try to set 4 bit mode
 	LiquidCrystal_write4bits(0x03);
-	HAL_Delay(4.5); // wait min 4.1ms
+	HAL_Delay(5); // wait min 4.1ms
 
     // second try
     LiquidCrystal_write4bits(0x03);
-    HAL_Delay(4.5); // wait min 4.1ms
+    HAL_Delay(5); // wait min 4.1ms
 
     // third go!
     LiquidCrystal_write4bits(0x03);
-    HAL_Delay(.15);
+    HAL_Delay(1);
 
     // finally, set to 4-bit interface
     LiquidCrystal_write4bits(0x02);
@@ -108,11 +108,11 @@ void LiquidCrystal_begin(uint8_t cols, uint8_t lines, uint8_t dotsize) {
 
     // Send function set command sequence
 	LiquidCrystal_command(LCD_FUNCTIONSET | _displayfunction);
-	HAL_Delay(4.5);  // wait more than 4.1 ms
+	HAL_Delay(5);  // wait more than 4.1 ms
 
     // second try
     LiquidCrystal_command(LCD_FUNCTIONSET | _displayfunction);
-    HAL_Delay(.15);
+    HAL_Delay(1);
 
     // third go
     LiquidCrystal_command(LCD_FUNCTIONSET | _displayfunction);
@@ -273,11 +273,11 @@ void LiquidCrystal_send(uint8_t value, uint8_t mode) {
 
 void LiquidCrystal_pulseEnable(void) {
   digitalWrite(_enable_pin, LOW);
-  HAL_Delay(0.001);
+  HAL_Delay(1);
   digitalWrite(_enable_pin, HIGH);
-  HAL_Delay(0.001);    // enable pulse must be >450 ns
+  HAL_Delay(1);    // enable pulse must be >450 ns
   digitalWrite(_enable_pin, LOW);
-  HAL_Delay(0.1);   // commands need >37 us to settle
+  HAL_Delay(1);   // commands need >37 us to settle
 }
 
 void LiquidCrystal_write4bits(uint8_t value) {
