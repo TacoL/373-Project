@@ -1,6 +1,6 @@
 ################################################################################
 # Automatically-generated file. Do not edit!
-# Toolchain: GNU Tools for STM32 (9-2020-q2-update)
+# Toolchain: GNU Tools for STM32 (12.3.rel1)
 ################################################################################
 
 -include ../makefile.init
@@ -20,7 +20,6 @@ RM := rm -rf
 -include Drivers/BSP/Components/BLE/subdir.mk
 -include Core/Startup/subdir.mk
 -include Core/Src/subdir.mk
--include subdir.mk
 -include objects.mk
 
 ifneq ($(MAKECMDGOALS),clean)
@@ -45,12 +44,15 @@ $(wildcard ../makefile.targets) \
 
 BUILD_ARTIFACT_NAME := STEVALFCU01V2
 BUILD_ARTIFACT_EXTENSION := elf
-BUILD_ARTIFACT_PREFIX := 
-BUILD_ARTIFACT := $(BUILD_ARTIFACT_PREFIX)$(BUILD_ARTIFACT_NAME).$(BUILD_ARTIFACT_EXTENSION)
+BUILD_ARTIFACT_PREFIX :=
+BUILD_ARTIFACT := $(BUILD_ARTIFACT_PREFIX)$(BUILD_ARTIFACT_NAME)$(if $(BUILD_ARTIFACT_EXTENSION),.$(BUILD_ARTIFACT_EXTENSION),)
 
 # Add inputs and outputs from these tool invocations to the build variables 
 EXECUTABLES += \
 STEVALFCU01V2.elf \
+
+MAP_FILES += \
+STEVALFCU01V2.map \
 
 SIZE_OUTPUT += \
 default.size.stdout \
@@ -61,9 +63,6 @@ STEVALFCU01V2.list \
 OBJCOPY_HEX += \
 STEVALFCU01V2.hex \
 
-OBJCOPY_BIN += \
-STEVALFCU01V2.bin \
-
 
 # All Target
 all: main-build
@@ -72,8 +71,8 @@ all: main-build
 main-build: STEVALFCU01V2.elf secondary-outputs
 
 # Tool invocations
-STEVALFCU01V2.elf: $(OBJS) $(USER_OBJS) C:\Users\gmessina\OneDrive\ -\ STMicroelectronics\Drones\Development\Source_Code\STEVALFCU01V2\STM32F401CCUX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-gcc -o "STEVALFCU01V2.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"C:\Users\gmessina\OneDrive - STMicroelectronics\Drones\Development\Source_Code\STEVALFCU01V2\STM32F401CCUX_FLASH.ld" --specs=nosys.specs -Wl,-Map="STEVALFCU01V2.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+STEVALFCU01V2.elf STEVALFCU01V2.map: $(OBJS) $(USER_OBJS) /Users/sagehere/Documents/373Project/STEVAL-FCU001V2/STM32F401CCUX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-gcc -o "STEVALFCU01V2.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"/Users/sagehere/Documents/373Project/STEVAL-FCU001V2/STM32F401CCUX_FLASH.ld" --specs=nosys.specs -Wl,-Map="STEVALFCU01V2.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 
@@ -92,17 +91,12 @@ STEVALFCU01V2.hex: $(EXECUTABLES) makefile objects.list $(OPTIONAL_TOOL_DEPS)
 	@echo 'Finished building: $@'
 	@echo ' '
 
-STEVALFCU01V2.bin: $(EXECUTABLES) makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-objcopy  -O binary $(EXECUTABLES) "STEVALFCU01V2.bin"
-	@echo 'Finished building: $@'
-	@echo ' '
-
 # Other Targets
 clean:
-	-$(RM) *
+	-$(RM) STEVALFCU01V2.elf STEVALFCU01V2.hex STEVALFCU01V2.list STEVALFCU01V2.map default.size.stdout
 	-@echo ' '
 
-secondary-outputs: $(SIZE_OUTPUT) $(OBJDUMP_LIST) $(OBJCOPY_HEX) $(OBJCOPY_BIN)
+secondary-outputs: $(SIZE_OUTPUT) $(OBJDUMP_LIST) $(OBJCOPY_HEX)
 
 fail-specified-linker-script-missing:
 	@echo 'Error: Cannot find the specified linker script. Check the linker settings in the build configuration.'
@@ -111,7 +105,6 @@ fail-specified-linker-script-missing:
 warn-no-linker-script-specified:
 	@echo 'Warning: No linker script specified. Check the linker settings in the build configuration.'
 
-.PHONY: all clean dependents fail-specified-linker-script-missing warn-no-linker-script-specified
-.SECONDARY:
+.PHONY: all clean dependents main-build fail-specified-linker-script-missing warn-no-linker-script-specified
 
 -include ../makefile.targets
