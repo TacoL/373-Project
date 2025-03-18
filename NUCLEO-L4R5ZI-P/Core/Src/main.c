@@ -95,9 +95,8 @@ int main(void)
   MX_UART5_Init();
   MX_I2C1_Init();
   /* USER CODE BEGIN 2 */
-  LiquidCrystal_init(LCD_8BITMODE);
-  LiquidCrystal_display();
-  LiquidCrystal_write8bits(0b00110011);
+  LiquidCrystal_init(0);
+  LiquidCrystal_write(0b00110011);
 
 	#define SAD_W_M 0x32
 	#define SAD_R_M 0x33
