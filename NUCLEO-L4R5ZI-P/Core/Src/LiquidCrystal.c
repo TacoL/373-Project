@@ -1,9 +1,5 @@
 #include "LiquidCrystal.h"
 
-#include <stdio.h>
-#include <string.h>
-#include <inttypes.h>
-
 // When the display powers up, it is configured as follows:
 //
 // 1. Display clear

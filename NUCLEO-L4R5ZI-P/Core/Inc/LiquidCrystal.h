@@ -2,8 +2,10 @@
 #define LiquidCrystal_h
 
 #include "main.h"
-
 #include "stm32l4xx_hal.h"
+
+#include <stdio.h>
+#include <string.h>
 #include <inttypes.h>
 
 // signal states
