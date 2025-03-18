@@ -1,6 +1,8 @@
 #ifndef LiquidCrystal_h
 #define LiquidCrystal_h
 
+#include "main.h"
+
 #include "stm32l4xx_hal.h"
 #include <inttypes.h>
 
@@ -46,9 +48,7 @@
 #define LCD_5x10DOTS 0x04
 #define LCD_5x8DOTS 0x00
 
-void LiquidCrystal_init(uint8_t fourbitmode, uint8_t rs, uint8_t rw, uint8_t enable,
-	uint8_t d0, uint8_t d1, uint8_t d2, uint8_t d3,
-	uint8_t d4, uint8_t d5, uint8_t d6, uint8_t d7);
+void LiquidCrystal_init(uint8_t fourbitmode);
 
 void LiquidCrystal_begin(uint8_t cols, uint8_t rows, uint8_t charsize); // Make charsize default value LCD_5x8DOTS
 
@@ -78,12 +78,6 @@ void LiquidCrystal_send(uint8_t, uint8_t);
 void LiquidCrystal_write4bits(uint8_t);
 void LiquidCrystal_write8bits(uint8_t);
 void LiquidCrystal_pulseEnable();
-
-// TODO: Use Cube UI to configure the following pins
-uint8_t _rs_pin; // LOW: command. HIGH: character.
-uint8_t _rw_pin; // LOW: write to LCD. HIGH: read from LCD.
-uint8_t _enable_pin; // activated by a HIGH pulse.
-uint8_t _data_pins[8];
 
 uint8_t _displayfunction;
 uint8_t _displaycontrol;

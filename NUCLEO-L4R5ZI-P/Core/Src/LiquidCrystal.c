@@ -21,23 +21,8 @@
 //
 // Note, however, that resetting doesn't reset the LCD, so we
 // can't assume that it's in that state the program starts
-void LiquidCrystal_init(uint8_t fourbitmode, uint8_t rs, uint8_t rw, uint8_t enable,
-			 uint8_t d0, uint8_t d1, uint8_t d2, uint8_t d3,
-			 uint8_t d4, uint8_t d5, uint8_t d6, uint8_t d7)
+void LiquidCrystal_init(uint8_t fourbitmode)
 {
-  _rs_pin = rs;
-  _rw_pin = rw;
-  _enable_pin = enable;
-
-  _data_pins[0] = d0;
-  _data_pins[1] = d1;
-  _data_pins[2] = d2;
-  _data_pins[3] = d3;
-  _data_pins[4] = d4;
-  _data_pins[5] = d5;
-  _data_pins[6] = d6;
-  _data_pins[7] = d7;
-
   if (fourbitmode)
     _displayfunction = LCD_4BITMODE | LCD_1LINE | LCD_5x8DOTS;
   else
@@ -59,29 +44,14 @@ void LiquidCrystal_begin(uint8_t cols, uint8_t lines, uint8_t dotsize) {
     _displayfunction |= LCD_5x10DOTS;
   }
 
-  pinMode(_rs_pin, OUTPUT);
-  // we can save 1 pin by not using RW. Indicate by passing 255 instead of pin#
-  if (_rw_pin != 255) {
-    pinMode(_rw_pin, OUTPUT);
-  }
-  pinMode(_enable_pin, OUTPUT);
-
-  // Do these once, instead of every time a character is drawn for speed reasons.
-  for (int i=0; i<((_displayfunction & LCD_8BITMODE) ? 8 : 4); ++i)
-  {
-    pinMode(_data_pins[i], OUTPUT);
-   }
-
   // SEE PAGE 45/46 FOR INITIALIZATION SPECIFICATION!
   // according to datasheet, we need at least 40 ms after power rises above 2.7 V
   // before sending commands. Arduino can turn on way before 4.5 V so we'll wait 50
   HAL_Delay(50);
   // Now we pull both RS and R/W low to begin commands
-  digitalWrite(_rs_pin, LOW);
-  digitalWrite(_enable_pin, LOW);
-  if (_rw_pin != 255) {
-    digitalWrite(_rw_pin, LOW);
-  }
+  HAL_GPIO_WritePin(LCD_RS_GPIO_Port, LCD_RS_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(LCD_EN_GPIO_Port, LCD_EN_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(LCD_RW_GPIO_Port, LCD_RW_Pin, GPIO_PIN_RESET);
 
   //put the LCD into 4 bit or 8 bit mode
   if (! (_displayfunction & LCD_8BITMODE)) {
@@ -256,12 +226,10 @@ inline uint8_t LiquidCrystal_write(uint8_t value) {
 
 // write either command or data, with automatic 4/8-bit selection
 void LiquidCrystal_send(uint8_t value, uint8_t mode) {
-  digitalWrite(_rs_pin, mode);
+  HAL_GPIO_WritePin(LCD_RS_GPIO_Port, LCD_RS_Pin, mode);
 
   // if there is a RW pin indicated, set it low to Write
-  if (_rw_pin != 255) {
-    digitalWrite(_rw_pin, LOW);
-  }
+  HAL_GPIO_WritePin(LCD_RW_GPIO_Port, LCD_RW_Pin, GPIO_PIN_RESET);
 
   if (_displayfunction & LCD_8BITMODE) {
 	LiquidCrystal_write8bits(value);
@@ -272,26 +240,32 @@ void LiquidCrystal_send(uint8_t value, uint8_t mode) {
 }
 
 void LiquidCrystal_pulseEnable(void) {
-  digitalWrite(_enable_pin, LOW);
+  HAL_GPIO_WritePin(LCD_EN_GPIO_Port, LCD_EN_Pin, GPIO_PIN_RESET);
   HAL_Delay(1);
-  digitalWrite(_enable_pin, HIGH);
+  HAL_GPIO_WritePin(LCD_EN_GPIO_Port, LCD_EN_Pin, GPIO_PIN_SET);
   HAL_Delay(1);    // enable pulse must be >450 ns
-  digitalWrite(_enable_pin, LOW);
+  HAL_GPIO_WritePin(LCD_EN_GPIO_Port, LCD_EN_Pin, GPIO_PIN_RESET);
   HAL_Delay(1);   // commands need >37 us to settle
 }
 
 void LiquidCrystal_write4bits(uint8_t value) {
-  for (int i = 0; i < 4; i++) {
-    digitalWrite(_data_pins[i], (value >> i) & 0x01);
-  }
+  HAL_GPIO_WritePin(LCD_D0_GPIO_Port, LCD_D0_Pin, (value >> 0) & 0x01);
+  HAL_GPIO_WritePin(LCD_D1_GPIO_Port, LCD_D1_Pin, (value >> 1) & 0x01);
+  HAL_GPIO_WritePin(LCD_D2_GPIO_Port, LCD_D2_Pin, (value >> 2) & 0x01);
+  HAL_GPIO_WritePin(LCD_D3_GPIO_Port, LCD_D3_Pin, (value >> 3) & 0x01);
 
   LiquidCrystal_pulseEnable();
 }
 
 void LiquidCrystal_write8bits(uint8_t value) {
-  for (int i = 0; i < 8; i++) {
-    digitalWrite(_data_pins[i], (value >> i) & 0x01);
-  }
+  HAL_GPIO_WritePin(LCD_D0_GPIO_Port, LCD_D0_Pin, (value >> 0) & 0x01);
+  HAL_GPIO_WritePin(LCD_D1_GPIO_Port, LCD_D1_Pin, (value >> 1) & 0x01);
+  HAL_GPIO_WritePin(LCD_D2_GPIO_Port, LCD_D2_Pin, (value >> 2) & 0x01);
+  HAL_GPIO_WritePin(LCD_D3_GPIO_Port, LCD_D3_Pin, (value >> 3) & 0x01);
+  HAL_GPIO_WritePin(LCD_D4_GPIO_Port, LCD_D4_Pin, (value >> 4) & 0x01);
+  HAL_GPIO_WritePin(LCD_D5_GPIO_Port, LCD_D5_Pin, (value >> 5) & 0x01);
+  HAL_GPIO_WritePin(LCD_D6_GPIO_Port, LCD_D6_Pin, (value >> 6) & 0x01);
+  HAL_GPIO_WritePin(LCD_D7_GPIO_Port, LCD_D7_Pin, (value >> 7) & 0x01);
 
   LiquidCrystal_pulseEnable();
 }
