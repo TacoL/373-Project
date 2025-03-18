@@ -1,5 +1,14 @@
 #include "LiquidCrystal.h"
 
+uint8_t _displayfunction;
+uint8_t _displaycontrol;
+uint8_t _displaymode;
+
+uint8_t _initialized;
+
+uint8_t _numlines;
+uint8_t _row_offsets[4];
+
 // When the display powers up, it is configured as follows:
 //
 // 1. Display clear

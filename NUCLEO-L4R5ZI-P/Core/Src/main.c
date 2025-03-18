@@ -22,6 +22,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "stdio.h"
+#include "LiquidCrystal.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -94,6 +95,10 @@ int main(void)
   MX_UART5_Init();
   MX_I2C1_Init();
   /* USER CODE BEGIN 2 */
+  LiquidCrystal_init(LCD_8BITMODE);
+  LiquidCrystal_display();
+  LiquidCrystal_write8bits(0b00110011);
+
 	#define SAD_W_M 0x32
 	#define SAD_R_M 0x33
   	HAL_StatusTypeDef ret;

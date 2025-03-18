@@ -81,13 +81,4 @@ void LiquidCrystal_write4bits(uint8_t);
 void LiquidCrystal_write8bits(uint8_t);
 void LiquidCrystal_pulseEnable();
 
-uint8_t _displayfunction;
-uint8_t _displaycontrol;
-uint8_t _displaymode;
-
-uint8_t _initialized;
-
-uint8_t _numlines;
-uint8_t _row_offsets[4];
-
 #endif
