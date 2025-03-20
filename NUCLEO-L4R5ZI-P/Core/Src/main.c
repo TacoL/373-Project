@@ -134,9 +134,9 @@ int main(void)
 		// Retrieve accelerometer values
 		buf[0] = lower_x;
 		ret = HAL_I2C_Master_Transmit(&hi2c1, accel_addr, buf, 1, HAL_MAX_DELAY);
-		if (ret != HAL_OK) { return 1; } // return with error code 1
+		if (ret != HAL_OK) { LiquidCrystal_clear(); LiquidCrystal_print("ERROR: 1"); continue; }
 		ret = HAL_I2C_Master_Receive(&hi2c1, accel_addr, buf, 6, HAL_MAX_DELAY);
-		if (ret != HAL_OK) { return 2; } // return with error code 2
+		if (ret != HAL_OK) { LiquidCrystal_clear(); LiquidCrystal_print("ERROR: 2"); continue; }
 
 		x_val = (buf[1] << 8) | buf[0];
 		y_val = (buf[3] << 8) | buf[2];
