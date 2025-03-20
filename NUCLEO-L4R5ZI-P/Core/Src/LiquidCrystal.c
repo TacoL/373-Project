@@ -119,6 +119,13 @@ void LiquidCrystal_setRowOffsets(int row0, int row1, int row2, int row3)
 }
 
 /********** high level commands, for the user! */
+void LiquidCrystal_print(char toPrint[])
+{
+	for (int i = 0; toPrint[i] != NULL; ++i)
+	{
+		LiquidCrystal_write(toPrint[i]);
+	}
+}
 void LiquidCrystal_clear()
 {
   LiquidCrystal_command(LCD_CLEARDISPLAY);  // clear display, set cursor position to zero

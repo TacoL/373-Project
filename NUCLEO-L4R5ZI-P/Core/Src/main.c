@@ -104,7 +104,7 @@ int main(void)
   MX_DAC1_Init();
   /* USER CODE BEGIN 2 */
   LiquidCrystal_init(0);
-  LiquidCrystal_write(0b00110011);
+  LiquidCrystal_print("this amazing");
 
 	#define SAD_W_M 0x32
 	#define SAD_R_M 0x33
@@ -158,6 +158,10 @@ int main(void)
 	  printf("y axis %d raw, %f Gs\n", y, y/16300.0);
 	  printf("z axis %d raw, %f Gs\n\n", z, z/19100.0);
 	  HAL_Delay(700);
+
+
+	  //LiquidCrystal_write(0b11001100); // 3 but backwards
+
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */

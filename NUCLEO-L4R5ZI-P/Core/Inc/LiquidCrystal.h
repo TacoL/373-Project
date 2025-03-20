@@ -81,4 +81,6 @@ void LiquidCrystal_write4bits(uint8_t);
 void LiquidCrystal_write8bits(uint8_t);
 void LiquidCrystal_pulseEnable();
 
+void LiquidCrystal_print(char toPrint[]);
+
 #endif
