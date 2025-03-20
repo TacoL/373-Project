@@ -33,7 +33,7 @@ void LiquidCrystal_init(uint8_t fourbitmode)
   else
     _displayfunction = LCD_8BITMODE | LCD_1LINE | LCD_5x8DOTS;
 
-  LiquidCrystal_begin(16, 1, LCD_5x8DOTS);
+  LiquidCrystal_begin(16, 2, LCD_5x8DOTS);
 }
 
 void LiquidCrystal_begin(uint8_t cols, uint8_t lines, uint8_t dotsize) {

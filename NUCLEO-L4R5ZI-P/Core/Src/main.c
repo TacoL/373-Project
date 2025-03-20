@@ -21,7 +21,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "stdio.h"
+#include <stdio.h>
 #include "LiquidCrystal.h"
 /* USER CODE END Includes */
 
@@ -32,7 +32,9 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-
+#define accel_addr (0b0011001 << 1)
+#define CTRL_REG1_A 0x20
+#define lower_x (0x28 | 0x80)
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -103,64 +105,54 @@ int main(void)
   MX_ADC1_Init();
   MX_DAC1_Init();
   /* USER CODE BEGIN 2 */
+
+  // Enable screen
   LiquidCrystal_init(0);
-  LiquidCrystal_print("this amazing");
 
-	#define SAD_W_M 0x32
-	#define SAD_R_M 0x33
-  	HAL_StatusTypeDef ret;
-  	uint8_t rbuf[10] = {0x00};
-  	uint8_t wbuf[10]= {0x20};//IRA_REG_M returns 0x48
-  	wbuf[1] = 0x97;
-  	ret = HAL_I2C_Master_Transmit(&hi2c1, SAD_W_M, &wbuf[0], 2, 1000);
+  // Enable accelerometer
+  HAL_StatusTypeDef ret;
+  uint8_t buf[12];
+  buf[0] = CTRL_REG1_A;
+  buf[1] = 0b10010111;
 
-  	wbuf[0] = 0x21;
-  	wbuf[1] = 0x00;
-  	ret = HAL_I2C_Master_Transmit(&hi2c1, SAD_W_M, &wbuf, 2, 1000);
+  ret = HAL_I2C_Master_Transmit(&hi2c1, accel_addr, buf, 2, HAL_MAX_DELAY);
+  if (ret != HAL_OK) { return 1; } // return with error code 1
 
-  	wbuf[0] = 0x22;
-  	wbuf[1] = 0x00;
-  	ret = HAL_I2C_Master_Transmit(&hi2c1, SAD_W_M, &wbuf, 2, 1000);
+  int16_t x_val, y_val, z_val = 0;
+  char x_str[100];
+  char y_str[100];
+  char z_str[100];
 
-  	wbuf[0] = 0x28;
-  	wbuf[1] = 0x29;
-  	wbuf[2] = 0x2A;
-  	wbuf[3] = 0x2B;
-  	wbuf[4] = 0x2C;
-  	wbuf[5] = 0x2D;
-
-  	int16_t x = 0;
-  	int16_t y = 0;
-  	int16_t z = 0;
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  while (1)
-  {
-	  ret = HAL_I2C_Master_Transmit(&hi2c1, SAD_W_M, &wbuf[0], 1, 1000);
-	  ret = HAL_I2C_Master_Receive(&hi2c1, SAD_R_M, &rbuf[0], 1, 1000);
-	  ret = HAL_I2C_Master_Transmit(&hi2c1, SAD_W_M, &wbuf[1], 1, 1000);
-	  ret = HAL_I2C_Master_Receive(&hi2c1, SAD_R_M, &rbuf[1], 1, 1000);
-	  x = (rbuf[1] << 8) | rbuf[0];
-	  ret = HAL_I2C_Master_Transmit(&hi2c1, SAD_W_M, &wbuf[2], 1, 1000);
-	  ret = HAL_I2C_Master_Receive(&hi2c1, SAD_R_M, &rbuf[2], 1, 1000);
-	  ret = HAL_I2C_Master_Transmit(&hi2c1, SAD_W_M, &wbuf[3], 1, 1000);
-	  ret = HAL_I2C_Master_Receive(&hi2c1, SAD_R_M, &rbuf[3], 1, 1000);
-	  y = (rbuf[3] << 8) | rbuf[2];
-	  ret = HAL_I2C_Master_Transmit(&hi2c1, SAD_W_M, &wbuf[4], 1, 1000);
-	  ret = HAL_I2C_Master_Receive(&hi2c1, SAD_R_M, &rbuf[4], 1, 1000);
-	  ret = HAL_I2C_Master_Transmit(&hi2c1, SAD_W_M, &wbuf[5], 1, 1000);
-	  ret = HAL_I2C_Master_Receive(&hi2c1, SAD_R_M, &rbuf[5], 1, 1000);
-	  z = (rbuf[5] << 8) | rbuf[4];
+	while (1)
+	{
+		HAL_Delay(500);
 
-	  printf("x axis %d raw, %f Gs\n", x, x/16600.0);
-	  printf("y axis %d raw, %f Gs\n", y, y/16300.0);
-	  printf("z axis %d raw, %f Gs\n\n", z, z/19100.0);
-	  HAL_Delay(700);
+		// Retrieve accelerometer values
+		buf[0] = lower_x;
+		ret = HAL_I2C_Master_Transmit(&hi2c1, accel_addr, buf, 1, HAL_MAX_DELAY);
+		if (ret != HAL_OK) { return 1; } // return with error code 1
+		ret = HAL_I2C_Master_Receive(&hi2c1, accel_addr, buf, 6, HAL_MAX_DELAY);
+		if (ret != HAL_OK) { return 2; } // return with error code 2
 
+		x_val = (buf[1] << 8) | buf[0];
+		y_val = (buf[3] << 8) | buf[2];
+		z_val = (buf[5] << 8) | buf[4];
 
-	  //LiquidCrystal_write(0b11001100); // 3 but backwards
+		// Print to LCD Screen
+		sprintf(x_str, "%.5f", (float)x_val / 16000.0);
+		sprintf(y_str, "%.5f", (float)y_val / 16000.0);
+		sprintf(z_str, "%.5f", (float)z_val / 16000.0);
+
+		LiquidCrystal_clear();
+		LiquidCrystal_print("Gx: ");
+		LiquidCrystal_print(x_str);
+		LiquidCrystal_setCursor(0, 1);
+		LiquidCrystal_print("Gz: ");
+		LiquidCrystal_print(z_str);
 
     /* USER CODE END WHILE */
 
