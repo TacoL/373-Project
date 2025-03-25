@@ -14,3 +14,9 @@ Drone Controls are in Steval folder
 - When attached to a finger, translucent white touching skin, solder connects pointing to palm
 - Finger Straight = 90-115kohm
 - Finger Bent = 60-80kohm
+
+**Drone Fly Analysis**
+- 3 NW, 2 NE, 4 SW, 1 SE (4 - M4, 2 - M2, 3 - M3, 1 - M1) = doesn't get off ground and tips forward (N) motors 1 and 4 are stronger
+- 3 NW, 2 NE, 4 SW, 1 SE (2 - M4, 4 - M2, 1 - M3, 3 - M1) = doesn't get off ground and tips to left (W) motors 1 and 2 are stronger
+- 3 NW, 2 NE, 4 SW, 1 SE (2, 4, 3, 1) = doesn't get off ground and turns in place left (turns CC)
+- 

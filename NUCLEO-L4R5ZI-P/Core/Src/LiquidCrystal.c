@@ -33,7 +33,7 @@ void LiquidCrystal_init(uint8_t fourbitmode)
   else
     _displayfunction = LCD_8BITMODE | LCD_1LINE | LCD_5x8DOTS;
 
-  LiquidCrystal_begin(16, 1, LCD_5x8DOTS);
+  LiquidCrystal_begin(16, 2, LCD_5x8DOTS);
 }
 
 void LiquidCrystal_begin(uint8_t cols, uint8_t lines, uint8_t dotsize) {
@@ -119,6 +119,13 @@ void LiquidCrystal_setRowOffsets(int row0, int row1, int row2, int row3)
 }
 
 /********** high level commands, for the user! */
+void LiquidCrystal_print(char toPrint[])
+{
+	for (int i = 0; toPrint[i] != NULL; ++i)
+	{
+		LiquidCrystal_write(toPrint[i]);
+	}
+}
 void LiquidCrystal_clear()
 {
   LiquidCrystal_command(LCD_CLEARDISPLAY);  // clear display, set cursor position to zero
