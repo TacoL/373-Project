@@ -1,6 +1,6 @@
 Middlewares/Utils/ble_list.o: ../Middlewares/Utils/ble_list.c \
- C:/Users/leelam/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/hal_types.h \
- C:/Users/leelam/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/ble_list.h \
+ C:/Users/tlucero/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/hal_types.h \
+ C:/Users/tlucero/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/ble_list.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h \
  ../Core/Inc/stm32f4xx_hal_conf.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_rcc.h \
@@ -35,8 +35,8 @@ Middlewares/Utils/ble_list.o: ../Middlewares/Utils/ble_list.c \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim_ex.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h
-C:/Users/leelam/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/hal_types.h:
-C:/Users/leelam/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/ble_list.h:
+C:/Users/tlucero/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/hal_types.h:
+C:/Users/tlucero/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/ble_list.h:
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h:
 ../Core/Inc/stm32f4xx_hal_conf.h:
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_rcc.h:

@@ -16,7 +16,7 @@ S_DEPS += \
 
 # Each subdirectory must supply rules for building sources it contributes
 Core/Startup/%.o: ../Core/Startup/%.s Core/Startup/subdir.mk
-	arm-none-eabi-gcc -mcpu=cortex-m4 -g3 -c -I"C:/Users/leelam/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include" -I"C:/Users/leelam/Desktop/373-Project/STEVAL-FCU001V2/Drivers/BSP/Components/BLE" -I"C:/Users/leelam/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/HCI" -I"C:/Users/leelam/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/HCI/Controller" -I"C:/Users/leelam/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Interface" -I"C:/Users/leelam/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Utils" -x assembler-with-cpp -MMD -MP -MF"$(@:%.o=%.d)" -MT"$@" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "$@" "$<"
+	arm-none-eabi-gcc -mcpu=cortex-m4 -g3 -c -I"C:/Users/tlucero/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include" -I"C:/Users/tlucero/Desktop/373-Project/STEVAL-FCU001V2/Drivers/BSP/Components/BLE" -I"C:/Users/tlucero/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/HCI" -I"C:/Users/tlucero/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/HCI/Controller" -I"C:/Users/tlucero/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Interface" -I"C:/Users/tlucero/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Utils" -x assembler-with-cpp -MMD -MP -MF"$(@:%.o=%.d)" -MT"$@" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "$@" "$<"
 
 clean: clean-Core-2f-Startup
 
