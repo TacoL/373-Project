@@ -1,38 +1,38 @@
 Middlewares/HCI/Controller/bluenrg_hal_aci.o: \
  ../Middlewares/HCI/Controller/bluenrg_hal_aci.c \
- /Users/sagehere/Documents/373Project/STEVAL-FCU001V2/Middlewares/Include/hal_types.h \
- /Users/sagehere/Documents/373Project/STEVAL-FCU001V2/Middlewares/Include/osal.h \
- /Users/sagehere/Documents/373Project/STEVAL-FCU001V2/Middlewares/Include/ble_status.h \
- /Users/sagehere/Documents/373Project/STEVAL-FCU001V2/Middlewares/Include/hal.h \
- /Users/sagehere/Documents/373Project/STEVAL-FCU001V2/Middlewares/Include/hci_const.h \
- /Users/sagehere/Documents/373Project/STEVAL-FCU001V2/Middlewares/Include/compiler.h \
- /Users/sagehere/Documents/373Project/STEVAL-FCU001V2/Middlewares/Include/hal_types.h \
- /Users/sagehere/Documents/373Project/STEVAL-FCU001V2/Middlewares/Include/link_layer.h \
- /Users/sagehere/Documents/373Project/STEVAL-FCU001V2/Middlewares/Include/hci.h \
- /Users/sagehere/Documents/373Project/STEVAL-FCU001V2/Middlewares/Include/ble_list.h \
- /Users/sagehere/Documents/373Project/STEVAL-FCU001V2/Middlewares/Include/bluenrg_aci_const.h \
- /Users/sagehere/Documents/373Project/STEVAL-FCU001V2/Middlewares/Include/hci_const.h \
- /Users/sagehere/Documents/373Project/STEVAL-FCU001V2/Middlewares/Include/bluenrg_gatt_server.h \
- /Users/sagehere/Documents/373Project/STEVAL-FCU001V2/Middlewares/Include/ble_status.h \
- /Users/sagehere/Documents/373Project/STEVAL-FCU001V2/Middlewares/Include/bluenrg_hal_aci.h \
- /Users/sagehere/Documents/373Project/STEVAL-FCU001V2/Middlewares/Include/bluenrg_gatt_server.h \
- /Users/sagehere/Documents/373Project/STEVAL-FCU001V2/Middlewares/Include/bluenrg_gap.h \
- /Users/sagehere/Documents/373Project/STEVAL-FCU001V2/Middlewares/Include/link_layer.h
-/Users/sagehere/Documents/373Project/STEVAL-FCU001V2/Middlewares/Include/hal_types.h:
-/Users/sagehere/Documents/373Project/STEVAL-FCU001V2/Middlewares/Include/osal.h:
-/Users/sagehere/Documents/373Project/STEVAL-FCU001V2/Middlewares/Include/ble_status.h:
-/Users/sagehere/Documents/373Project/STEVAL-FCU001V2/Middlewares/Include/hal.h:
-/Users/sagehere/Documents/373Project/STEVAL-FCU001V2/Middlewares/Include/hci_const.h:
-/Users/sagehere/Documents/373Project/STEVAL-FCU001V2/Middlewares/Include/compiler.h:
-/Users/sagehere/Documents/373Project/STEVAL-FCU001V2/Middlewares/Include/hal_types.h:
-/Users/sagehere/Documents/373Project/STEVAL-FCU001V2/Middlewares/Include/link_layer.h:
-/Users/sagehere/Documents/373Project/STEVAL-FCU001V2/Middlewares/Include/hci.h:
-/Users/sagehere/Documents/373Project/STEVAL-FCU001V2/Middlewares/Include/ble_list.h:
-/Users/sagehere/Documents/373Project/STEVAL-FCU001V2/Middlewares/Include/bluenrg_aci_const.h:
-/Users/sagehere/Documents/373Project/STEVAL-FCU001V2/Middlewares/Include/hci_const.h:
-/Users/sagehere/Documents/373Project/STEVAL-FCU001V2/Middlewares/Include/bluenrg_gatt_server.h:
-/Users/sagehere/Documents/373Project/STEVAL-FCU001V2/Middlewares/Include/ble_status.h:
-/Users/sagehere/Documents/373Project/STEVAL-FCU001V2/Middlewares/Include/bluenrg_hal_aci.h:
-/Users/sagehere/Documents/373Project/STEVAL-FCU001V2/Middlewares/Include/bluenrg_gatt_server.h:
-/Users/sagehere/Documents/373Project/STEVAL-FCU001V2/Middlewares/Include/bluenrg_gap.h:
-/Users/sagehere/Documents/373Project/STEVAL-FCU001V2/Middlewares/Include/link_layer.h:
+ C:/Users/leelam/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/hal_types.h \
+ C:/Users/leelam/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/osal.h \
+ C:/Users/leelam/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/ble_status.h \
+ C:/Users/leelam/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/hal.h \
+ C:/Users/leelam/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/hci_const.h \
+ C:/Users/leelam/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/compiler.h \
+ C:/Users/leelam/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/hal_types.h \
+ C:/Users/leelam/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/link_layer.h \
+ C:/Users/leelam/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/hci.h \
+ C:/Users/leelam/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/ble_list.h \
+ C:/Users/leelam/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/bluenrg_aci_const.h \
+ C:/Users/leelam/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/hci_const.h \
+ C:/Users/leelam/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/bluenrg_gatt_server.h \
+ C:/Users/leelam/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/ble_status.h \
+ C:/Users/leelam/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/bluenrg_hal_aci.h \
+ C:/Users/leelam/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/bluenrg_gatt_server.h \
+ C:/Users/leelam/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/bluenrg_gap.h \
+ C:/Users/leelam/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/link_layer.h
+C:/Users/leelam/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/hal_types.h:
+C:/Users/leelam/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/osal.h:
+C:/Users/leelam/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/ble_status.h:
+C:/Users/leelam/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/hal.h:
+C:/Users/leelam/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/hci_const.h:
+C:/Users/leelam/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/compiler.h:
+C:/Users/leelam/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/hal_types.h:
+C:/Users/leelam/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/link_layer.h:
+C:/Users/leelam/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/hci.h:
+C:/Users/leelam/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/ble_list.h:
+C:/Users/leelam/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/bluenrg_aci_const.h:
+C:/Users/leelam/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/hci_const.h:
+C:/Users/leelam/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/bluenrg_gatt_server.h:
+C:/Users/leelam/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/ble_status.h:
+C:/Users/leelam/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/bluenrg_hal_aci.h:
+C:/Users/leelam/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/bluenrg_gatt_server.h:
+C:/Users/leelam/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/bluenrg_gap.h:
+C:/Users/leelam/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/link_layer.h:

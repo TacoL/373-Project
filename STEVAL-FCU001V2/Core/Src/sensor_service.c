@@ -558,10 +558,10 @@ tBleStatus AccGyroMag_Update(AxesRaw_TypeDef *Acc,AxesRaw_TypeDef *Gyro,AxesRaw_
 	
   if (ret != BLE_STATUS_SUCCESS){
     if(W2ST_CHECK_CONNECTION(W2ST_CONNECT_STD_ERR)){
-      BytesToWrite =sprintf((char *)BufferToWrite, "Error Updating Acc/Gyro/Mag Char\r\n");
+      BytesToWrite =sprintf((char *)BufferToWrite, "Error Updating Acc/Gyro/Mag Char [if]\r\n");
       Stderr_Update(BufferToWrite,BytesToWrite);
     } else {
-      PRINTF("Error Updating Acc/Gyro/Mag Char\r\n");
+      PRINTF("Error Updating Acc/Gyro/Mag Char [else]\r\n");
     }
     return BLE_STATUS_ERROR;
   }
@@ -602,10 +602,10 @@ tBleStatus Batt_Env_RSSI_Update(int32_t Press,uint16_t Batt,int16_t Temp,int16_t
 
   if (ret != BLE_STATUS_SUCCESS){
     if(W2ST_CHECK_CONNECTION(W2ST_CONNECT_STD_ERR)){
-      BytesToWrite =sprintf((char *)BufferToWrite, "Error Updating Environmental Char\r\n");
+      BytesToWrite =sprintf((char *)BufferToWrite, "Error Updating Environmental Char [if]\r\n");
       Stderr_Update(BufferToWrite,BytesToWrite);
     } else {
-      PRINTF("Error Updating Environmental Char\r\n");
+      PRINTF("Error Updating Environmental Char [else]\r\n");
     }
     return BLE_STATUS_ERROR;
   }

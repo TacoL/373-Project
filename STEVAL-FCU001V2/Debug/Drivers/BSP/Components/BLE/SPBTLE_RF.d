@@ -49,17 +49,17 @@ Drivers/BSP/Components/BLE/SPBTLE_RF.o: \
  ../Drivers/BSP/Components/lps22hh/lps22hh_reg.h \
  ../Drivers/BSP/Components/lsm6dsr/lsm6dsr_reg.h ../Core/Inc/quaternion.h \
  ../Core/Inc/basic_math.h \
- /Users/sagehere/Documents/373Project/STEVAL-FCU001V2/Middlewares/Include/gp_timer.h \
- /Users/sagehere/Documents/373Project/STEVAL-FCU001V2/Middlewares/Include/ble_clock.h \
- /Users/sagehere/Documents/373Project/STEVAL-FCU001V2/Drivers/BSP/Components/BLE/SPBTLE_RF.h \
- /Users/sagehere/Documents/373Project/STEVAL-FCU001V2/Middlewares/Include/ble_status.h \
- /Users/sagehere/Documents/373Project/STEVAL-FCU001V2/Middlewares/Include/hal_types.h \
+ C:/Users/leelam/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/gp_timer.h \
+ C:/Users/leelam/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/ble_clock.h \
+ C:/Users/leelam/Desktop/373-Project/STEVAL-FCU001V2/Drivers/BSP/Components/BLE/SPBTLE_RF.h \
+ C:/Users/leelam/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/ble_status.h \
+ C:/Users/leelam/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/hal_types.h \
  ../Core/Inc/debug.h \
- /Users/sagehere/Documents/373Project/STEVAL-FCU001V2/Middlewares/Include/hci.h \
- /Users/sagehere/Documents/373Project/STEVAL-FCU001V2/Middlewares/Include/hal_types.h \
- /Users/sagehere/Documents/373Project/STEVAL-FCU001V2/Middlewares/Include/link_layer.h \
- /Users/sagehere/Documents/373Project/STEVAL-FCU001V2/Middlewares/Include/ble_status.h \
- /Users/sagehere/Documents/373Project/STEVAL-FCU001V2/Middlewares/Include/ble_list.h
+ C:/Users/leelam/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/hci.h \
+ C:/Users/leelam/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/hal_types.h \
+ C:/Users/leelam/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/link_layer.h \
+ C:/Users/leelam/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/ble_status.h \
+ C:/Users/leelam/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/ble_list.h
 ../Drivers/BSP/Components/BLE/SPBTLE_RF.h:
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h:
 ../Core/Inc/stm32f4xx_hal_conf.h:
@@ -114,14 +114,14 @@ Drivers/BSP/Components/BLE/SPBTLE_RF.o: \
 ../Drivers/BSP/Components/lsm6dsr/lsm6dsr_reg.h:
 ../Core/Inc/quaternion.h:
 ../Core/Inc/basic_math.h:
-/Users/sagehere/Documents/373Project/STEVAL-FCU001V2/Middlewares/Include/gp_timer.h:
-/Users/sagehere/Documents/373Project/STEVAL-FCU001V2/Middlewares/Include/ble_clock.h:
-/Users/sagehere/Documents/373Project/STEVAL-FCU001V2/Drivers/BSP/Components/BLE/SPBTLE_RF.h:
-/Users/sagehere/Documents/373Project/STEVAL-FCU001V2/Middlewares/Include/ble_status.h:
-/Users/sagehere/Documents/373Project/STEVAL-FCU001V2/Middlewares/Include/hal_types.h:
+C:/Users/leelam/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/gp_timer.h:
+C:/Users/leelam/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/ble_clock.h:
+C:/Users/leelam/Desktop/373-Project/STEVAL-FCU001V2/Drivers/BSP/Components/BLE/SPBTLE_RF.h:
+C:/Users/leelam/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/ble_status.h:
+C:/Users/leelam/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/hal_types.h:
 ../Core/Inc/debug.h:
-/Users/sagehere/Documents/373Project/STEVAL-FCU001V2/Middlewares/Include/hci.h:
-/Users/sagehere/Documents/373Project/STEVAL-FCU001V2/Middlewares/Include/hal_types.h:
-/Users/sagehere/Documents/373Project/STEVAL-FCU001V2/Middlewares/Include/link_layer.h:
-/Users/sagehere/Documents/373Project/STEVAL-FCU001V2/Middlewares/Include/ble_status.h:
-/Users/sagehere/Documents/373Project/STEVAL-FCU001V2/Middlewares/Include/ble_list.h:
+C:/Users/leelam/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/hci.h:
+C:/Users/leelam/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/hal_types.h:
+C:/Users/leelam/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/link_layer.h:
+C:/Users/leelam/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/ble_status.h:
+C:/Users/leelam/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/ble_list.h:
