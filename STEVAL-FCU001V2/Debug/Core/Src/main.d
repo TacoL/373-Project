@@ -51,36 +51,36 @@ Core/Src/main.o: ../Core/Src/main.c ../Core/Inc/main.h \
  ../Core/Inc/flight_control.h ../Core/Inc/ahrs.h ../Core/Inc/motor.h \
  ../Core/Inc/timer.h ../Core/Inc/rc.h ../Core/Inc/config_drone.h \
  ../Core/Inc/timer.h ../Core/Inc/config_drone.h \
- C:/Users/tlucero/Desktop/373-Project/STEVAL-FCU001V2/Drivers/BSP/Components/BLE/SPBTLE_RF.h \
- C:/Users/tlucero/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/bluenrg_gatt_server.h \
- C:/Users/tlucero/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/compiler.h \
- C:/Users/tlucero/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/ble_status.h \
- C:/Users/tlucero/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/hal_types.h \
+ C:/Users/cpui/Desktop/373-Project/STEVAL-FCU001V2/Drivers/BSP/Components/BLE/SPBTLE_RF.h \
+ C:/Users/cpui/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/bluenrg_gatt_server.h \
+ C:/Users/cpui/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/compiler.h \
+ C:/Users/cpui/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/ble_status.h \
+ C:/Users/cpui/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/hal_types.h \
  ../Core/Inc/sensor_service.h ../Core/Inc/TargetFeatures.h \
  ../Core/Inc/motenv1_config.h \
- C:/Users/tlucero/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/bluenrg_gap.h \
- C:/Users/tlucero/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/link_layer.h \
- C:/Users/tlucero/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/ble_status.h \
- C:/Users/tlucero/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/bluenrg_gap_aci.h \
- C:/Users/tlucero/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/bluenrg_gatt_aci.h \
- C:/Users/tlucero/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/bluenrg_gatt_server.h \
- C:/Users/tlucero/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/hci_const.h \
- C:/Users/tlucero/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/hal_types.h \
- C:/Users/tlucero/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/link_layer.h \
- C:/Users/tlucero/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/hci.h \
- C:/Users/tlucero/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/ble_list.h \
- C:/Users/tlucero/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/gp_timer.h \
- C:/Users/tlucero/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/ble_clock.h \
- C:/Users/tlucero/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/bluenrg_hal_aci.h \
- C:/Users/tlucero/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/bluenrg_aci_const.h \
- C:/Users/tlucero/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/hci_const.h \
- C:/Users/tlucero/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/hci.h \
- C:/Users/tlucero/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/hal.h \
- C:/Users/tlucero/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/sm.h \
+ C:/Users/cpui/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/bluenrg_gap.h \
+ C:/Users/cpui/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/link_layer.h \
+ C:/Users/cpui/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/ble_status.h \
+ C:/Users/cpui/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/bluenrg_gap_aci.h \
+ C:/Users/cpui/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/bluenrg_gatt_aci.h \
+ C:/Users/cpui/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/bluenrg_gatt_server.h \
+ C:/Users/cpui/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/hci_const.h \
+ C:/Users/cpui/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/hal_types.h \
+ C:/Users/cpui/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/link_layer.h \
+ C:/Users/cpui/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/hci.h \
+ C:/Users/cpui/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/ble_list.h \
+ C:/Users/cpui/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/gp_timer.h \
+ C:/Users/cpui/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/ble_clock.h \
+ C:/Users/cpui/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/bluenrg_hal_aci.h \
+ C:/Users/cpui/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/bluenrg_aci_const.h \
+ C:/Users/cpui/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/hci_const.h \
+ C:/Users/cpui/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/hci.h \
+ C:/Users/cpui/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/hal.h \
+ C:/Users/cpui/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/sm.h \
  ../Core/Inc/debug.h \
- C:/Users/tlucero/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/bluenrg_utils.h \
+ C:/Users/cpui/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/bluenrg_utils.h \
  ../Core/Inc/TargetFeatures.h ../Core/Inc/custom.h \
- C:/Users/tlucero/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/bluenrg_l2cap_aci.h
+ C:/Users/cpui/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/bluenrg_l2cap_aci.h
 ../Core/Inc/main.h:
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h:
 ../Core/Inc/stm32f4xx_hal_conf.h:
@@ -147,35 +147,35 @@ Core/Src/main.o: ../Core/Src/main.c ../Core/Inc/main.h \
 ../Core/Inc/config_drone.h:
 ../Core/Inc/timer.h:
 ../Core/Inc/config_drone.h:
-C:/Users/tlucero/Desktop/373-Project/STEVAL-FCU001V2/Drivers/BSP/Components/BLE/SPBTLE_RF.h:
-C:/Users/tlucero/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/bluenrg_gatt_server.h:
-C:/Users/tlucero/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/compiler.h:
-C:/Users/tlucero/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/ble_status.h:
-C:/Users/tlucero/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/hal_types.h:
+C:/Users/cpui/Desktop/373-Project/STEVAL-FCU001V2/Drivers/BSP/Components/BLE/SPBTLE_RF.h:
+C:/Users/cpui/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/bluenrg_gatt_server.h:
+C:/Users/cpui/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/compiler.h:
+C:/Users/cpui/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/ble_status.h:
+C:/Users/cpui/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/hal_types.h:
 ../Core/Inc/sensor_service.h:
 ../Core/Inc/TargetFeatures.h:
 ../Core/Inc/motenv1_config.h:
-C:/Users/tlucero/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/bluenrg_gap.h:
-C:/Users/tlucero/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/link_layer.h:
-C:/Users/tlucero/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/ble_status.h:
-C:/Users/tlucero/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/bluenrg_gap_aci.h:
-C:/Users/tlucero/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/bluenrg_gatt_aci.h:
-C:/Users/tlucero/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/bluenrg_gatt_server.h:
-C:/Users/tlucero/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/hci_const.h:
-C:/Users/tlucero/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/hal_types.h:
-C:/Users/tlucero/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/link_layer.h:
-C:/Users/tlucero/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/hci.h:
-C:/Users/tlucero/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/ble_list.h:
-C:/Users/tlucero/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/gp_timer.h:
-C:/Users/tlucero/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/ble_clock.h:
-C:/Users/tlucero/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/bluenrg_hal_aci.h:
-C:/Users/tlucero/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/bluenrg_aci_const.h:
-C:/Users/tlucero/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/hci_const.h:
-C:/Users/tlucero/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/hci.h:
-C:/Users/tlucero/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/hal.h:
-C:/Users/tlucero/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/sm.h:
+C:/Users/cpui/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/bluenrg_gap.h:
+C:/Users/cpui/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/link_layer.h:
+C:/Users/cpui/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/ble_status.h:
+C:/Users/cpui/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/bluenrg_gap_aci.h:
+C:/Users/cpui/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/bluenrg_gatt_aci.h:
+C:/Users/cpui/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/bluenrg_gatt_server.h:
+C:/Users/cpui/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/hci_const.h:
+C:/Users/cpui/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/hal_types.h:
+C:/Users/cpui/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/link_layer.h:
+C:/Users/cpui/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/hci.h:
+C:/Users/cpui/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/ble_list.h:
+C:/Users/cpui/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/gp_timer.h:
+C:/Users/cpui/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/ble_clock.h:
+C:/Users/cpui/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/bluenrg_hal_aci.h:
+C:/Users/cpui/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/bluenrg_aci_const.h:
+C:/Users/cpui/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/hci_const.h:
+C:/Users/cpui/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/hci.h:
+C:/Users/cpui/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/hal.h:
+C:/Users/cpui/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/sm.h:
 ../Core/Inc/debug.h:
-C:/Users/tlucero/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/bluenrg_utils.h:
+C:/Users/cpui/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/bluenrg_utils.h:
 ../Core/Inc/TargetFeatures.h:
 ../Core/Inc/custom.h:
-C:/Users/tlucero/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/bluenrg_l2cap_aci.h:
+C:/Users/cpui/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/bluenrg_l2cap_aci.h:

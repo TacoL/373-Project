@@ -1,17 +1,17 @@
 Middlewares/HCI/hci.o: ../Middlewares/HCI/hci.c \
- C:/Users/tlucero/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/hal_types.h \
- C:/Users/tlucero/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/osal.h \
- C:/Users/tlucero/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/ble_status.h \
- C:/Users/tlucero/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/hal.h \
- C:/Users/tlucero/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/hci_const.h \
- C:/Users/tlucero/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/compiler.h \
- C:/Users/tlucero/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/hal_types.h \
- C:/Users/tlucero/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/link_layer.h \
- C:/Users/tlucero/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/hci.h \
- C:/Users/tlucero/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/ble_list.h \
- C:/Users/tlucero/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/gp_timer.h \
- C:/Users/tlucero/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/ble_clock.h \
- C:/Users/tlucero/Desktop/373-Project/STEVAL-FCU001V2/Drivers/BSP/Components/BLE/SPBTLE_RF.h \
+ C:/Users/cpui/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/hal_types.h \
+ C:/Users/cpui/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/osal.h \
+ C:/Users/cpui/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/ble_status.h \
+ C:/Users/cpui/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/hal.h \
+ C:/Users/cpui/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/hci_const.h \
+ C:/Users/cpui/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/compiler.h \
+ C:/Users/cpui/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/hal_types.h \
+ C:/Users/cpui/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/link_layer.h \
+ C:/Users/cpui/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/hci.h \
+ C:/Users/cpui/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/ble_list.h \
+ C:/Users/cpui/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/gp_timer.h \
+ C:/Users/cpui/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/ble_clock.h \
+ C:/Users/cpui/Desktop/373-Project/STEVAL-FCU001V2/Drivers/BSP/Components/BLE/SPBTLE_RF.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h \
  ../Core/Inc/stm32f4xx_hal_conf.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_rcc.h \
@@ -60,21 +60,21 @@ Middlewares/HCI/hci.o: ../Middlewares/HCI/hci.c \
  ../Drivers/BSP/Components/lps22hh/lps22hh_reg.h \
  ../Drivers/BSP/Components/lsm6dsr/lsm6dsr_reg.h ../Core/Inc/quaternion.h \
  ../Core/Inc/basic_math.h \
- C:/Users/tlucero/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/ble_status.h \
+ C:/Users/cpui/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/ble_status.h \
  ../Core/Inc/debug.h
-C:/Users/tlucero/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/hal_types.h:
-C:/Users/tlucero/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/osal.h:
-C:/Users/tlucero/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/ble_status.h:
-C:/Users/tlucero/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/hal.h:
-C:/Users/tlucero/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/hci_const.h:
-C:/Users/tlucero/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/compiler.h:
-C:/Users/tlucero/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/hal_types.h:
-C:/Users/tlucero/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/link_layer.h:
-C:/Users/tlucero/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/hci.h:
-C:/Users/tlucero/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/ble_list.h:
-C:/Users/tlucero/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/gp_timer.h:
-C:/Users/tlucero/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/ble_clock.h:
-C:/Users/tlucero/Desktop/373-Project/STEVAL-FCU001V2/Drivers/BSP/Components/BLE/SPBTLE_RF.h:
+C:/Users/cpui/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/hal_types.h:
+C:/Users/cpui/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/osal.h:
+C:/Users/cpui/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/ble_status.h:
+C:/Users/cpui/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/hal.h:
+C:/Users/cpui/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/hci_const.h:
+C:/Users/cpui/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/compiler.h:
+C:/Users/cpui/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/hal_types.h:
+C:/Users/cpui/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/link_layer.h:
+C:/Users/cpui/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/hci.h:
+C:/Users/cpui/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/ble_list.h:
+C:/Users/cpui/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/gp_timer.h:
+C:/Users/cpui/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/ble_clock.h:
+C:/Users/cpui/Desktop/373-Project/STEVAL-FCU001V2/Drivers/BSP/Components/BLE/SPBTLE_RF.h:
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h:
 ../Core/Inc/stm32f4xx_hal_conf.h:
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_rcc.h:
@@ -128,5 +128,5 @@ C:/Users/tlucero/Desktop/373-Project/STEVAL-FCU001V2/Drivers/BSP/Components/BLE/
 ../Drivers/BSP/Components/lsm6dsr/lsm6dsr_reg.h:
 ../Core/Inc/quaternion.h:
 ../Core/Inc/basic_math.h:
-C:/Users/tlucero/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/ble_status.h:
+C:/Users/cpui/Desktop/373-Project/STEVAL-FCU001V2/Middlewares/Include/ble_status.h:
 ../Core/Inc/debug.h:

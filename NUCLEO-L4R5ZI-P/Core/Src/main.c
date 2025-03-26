@@ -68,7 +68,18 @@ static void MX_DAC1_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
+// package data so that UART can receive consistent packages
+uint32_t packageData(char* dataToPackage)
+{
+	// Get size of data
+	int size = 0;
+	char* dummy = dataToPackage;
+	while (dummy != NULL)
+	{
+		size++;
+		dummy++;
+	}
+}
 /* USER CODE END 0 */
 
 /**
@@ -88,7 +99,7 @@ int main(void)
   HAL_Init();
 
   /* USER CODE BEGIN Init */
-
+  uint8_t mode = 1; // 0 for flex sensor / acc board; 1 for lcd board
   /* USER CODE END Init */
 
   /* Configure the system clock */
@@ -105,23 +116,31 @@ int main(void)
   MX_ADC1_Init();
   MX_DAC1_Init();
   /* USER CODE BEGIN 2 */
-
-  // Enable screen
-  LiquidCrystal_init(0);
-
-  // Enable accelerometer
+  // init variables
   HAL_StatusTypeDef ret;
-  uint8_t buf[12];
-  buf[0] = CTRL_REG1_A;
-  buf[1] = 0b10010111;
-
-  ret = HAL_I2C_Master_Transmit(&hi2c1, accel_addr, buf, 2, HAL_MAX_DELAY);
-  if (ret != HAL_OK) { return 1; } // return with error code 1
+  uint8_t buf[30];
 
   int16_t x_val, y_val, z_val = 0;
   char x_str[100];
   char y_str[100];
   char z_str[100];
+  if (mode == 0)
+
+  {
+	  // Enable accelerometer
+	  buf[0] = CTRL_REG1_A;
+	  buf[1] = 0b10010111;
+
+	  ret = HAL_I2C_Master_Transmit(&hi2c1, accel_addr, buf, 2, HAL_MAX_DELAY);
+	  if (ret != HAL_OK) { return 1; } // return with error code 1
+  }
+  else
+  {
+	  // Enable screen
+	  LiquidCrystal_init(0);
+  }
+
+
 
   /* USER CODE END 2 */
 
@@ -129,30 +148,67 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
 	{
-		HAL_Delay(500);
+		if (mode == 0)
+		{
+			HAL_Delay(500);
+			// Retrieve accelerometer values
+			buf[0] = lower_x;
+			ret = HAL_I2C_Master_Transmit(&hi2c1, accel_addr, buf, 1, HAL_MAX_DELAY);
+			if (ret != HAL_OK) { continue; }
+			ret = HAL_I2C_Master_Receive(&hi2c1, accel_addr, buf, 6, HAL_MAX_DELAY);
+			if (ret != HAL_OK) { continue; }
 
-		// Retrieve accelerometer values
-		buf[0] = lower_x;
-		ret = HAL_I2C_Master_Transmit(&hi2c1, accel_addr, buf, 1, HAL_MAX_DELAY);
-		if (ret != HAL_OK) { LiquidCrystal_clear(); LiquidCrystal_print("ERROR: 1"); continue; }
-		ret = HAL_I2C_Master_Receive(&hi2c1, accel_addr, buf, 6, HAL_MAX_DELAY);
-		if (ret != HAL_OK) { LiquidCrystal_clear(); LiquidCrystal_print("ERROR: 2"); continue; }
+			x_val = (buf[1] << 8) | buf[0];
+			y_val = (buf[3] << 8) | buf[2];
+			z_val = (buf[5] << 8) | buf[4];
 
-		x_val = (buf[1] << 8) | buf[0];
-		y_val = (buf[3] << 8) | buf[2];
-		z_val = (buf[5] << 8) | buf[4];
+			// Send to other device
+			sprintf(x_str, "%.5f", (float)x_val / 16000.0);
+			sprintf(y_str, "%.5f", (float)y_val / 16000.0);
+			sprintf(z_str, "%.5f", (float)z_val / 16000.0);
 
-		// Print to LCD Screen
-		sprintf(x_str, "%.5f", (float)x_val / 16000.0);
-		sprintf(y_str, "%.5f", (float)y_val / 16000.0);
-		sprintf(z_str, "%.5f", (float)z_val / 16000.0);
+			if (x_val > 0)
+			{
+				x_str[7] = ' ';
+				x_str[8] = '\0';
+			}
+			if (y_val > 0)
+			{
+				y_str[7] = ' ';
+				y_str[8] = '\0';
+			}
+			if (z_val > 0)
+			{
+				z_str[7] = ' ';
+				z_str[8] = '\0';
+			}
 
-		LiquidCrystal_clear();
-		LiquidCrystal_print("Gx: ");
-		LiquidCrystal_print(x_str);
-		LiquidCrystal_setCursor(0, 1);
-		LiquidCrystal_print("Gz: ");
-		LiquidCrystal_print(z_str);
+			HAL_UART_Transmit(&huart5, x_str, 8, 0xFFFF);
+			HAL_UART_Transmit(&huart5, y_str, 8, 0xFFFF);
+			HAL_UART_Transmit(&huart5, z_str, 8, 0xFFFF);
+			// printf("hello world");
+		}
+		else
+		{
+			ret = HAL_UART_Receive(&huart5, buf, 24, HAL_MAX_DELAY);
+			if (ret != HAL_OK) { LiquidCrystal_clear(); LiquidCrystal_print("ERROR: 1"); continue; }
+
+			memcpy(x_str, buf, 8);
+			memcpy(y_str, buf+8, 8);
+			memcpy(z_str, buf+16, 8);
+
+			x_str[8] = '\0';
+			y_str[8] = '\0';
+			z_str[8] = '\0';
+
+			//Print to LCD Screen
+			LiquidCrystal_clear();
+			LiquidCrystal_print("Gx: ");
+			LiquidCrystal_print(x_str);
+			LiquidCrystal_setCursor(0, 1);
+			LiquidCrystal_print("Gz: ");
+			LiquidCrystal_print(z_str);
+		}
 
     /* USER CODE END WHILE */
 

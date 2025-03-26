@@ -1104,11 +1104,13 @@ void ReadSensorRawData( AxesRaw_TypeDef *acc, AxesRaw_TypeDef *gyro,  float *pre
     acc_temp.AXIS_X = (int32_t) acc_temp_int16.x;                /* Casting data to int32_t */
     acc_temp.AXIS_Y = (int32_t) acc_temp_int16.y;
     acc_temp.AXIS_Z = (int32_t) acc_temp_int16.z;
+    PRINTF("ACC[X, Y, Z]: %d\t%d\t%d\t\r\n", acc_temp.AXIS_X, acc_temp.AXIS_Y, acc_temp.AXIS_Z);
     // Read data is in mdps unit
     CUSTOM_MOTION_SENSOR_GetAxesRaw(CUSTOM_LSM6DSR_0, MOTION_GYRO, &gyro_temp_int16);
     gyro_temp.AXIS_X = (int32_t) gyro_temp_int16.x;                /* Casting data to int32_t */
     gyro_temp.AXIS_Y = (int32_t) gyro_temp_int16.y;
     gyro_temp.AXIS_Z = (int32_t) gyro_temp_int16.z;
+    PRINTF("GYRO[X, Y, Z]: %d\t%d\t%d\t\r\n\n\n", gyro_temp.AXIS_X, gyro_temp.AXIS_Y, gyro_temp.AXIS_Z);
 
     if (USE_PRESSURE_SENSOR)
     	CUSTOM_ENV_SENSOR_GetValue(CUSTOM_LPS22HH_0,ENV_PRESSURE, pre);
