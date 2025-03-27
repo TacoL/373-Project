@@ -36,6 +36,8 @@
 #define accel_addr (0b0011001 << 1)
 #define CTRL_REG1_A 0x20
 #define lower_x (0x28 | 0x80)
+
+#define ACCELEROMETER_UART_ID 0
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -70,10 +72,15 @@ static void MX_DAC1_Init(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 
-#define MESSAGE_ID_MASK (0b11 << 30)
-#define NUM_PACKETS_MASK (0xF << 26)
-#define CURRENT_PACKET_MASK (0xF << 22)
-#define DATA_MASK (0xFFFF << 6)
+#define MESSAGE_ID_POS 30
+#define NUM_PACKETS_POS 26
+#define CURRENT_PACKET_POS 22
+#define DATA_POS 6
+
+#define MESSAGE_ID_MASK (0b11 << MESSAGE_ID_POS)
+#define NUM_PACKETS_MASK (0xF << NUM_PACKETS_POS)
+#define CURRENT_PACKET_MASK (0xF << CURRENT_PACKET_POS)
+#define DATA_MASK (0xFFFF << DATA_POS)
 
 // package data so that UART can receive consistent packages
 // Data will be packaged into a 32-bit packets where:
@@ -101,7 +108,7 @@ uint32_t* packageData(int messageID, char* dataToPackage)
 	uint32_t* packets = (uint32_t*)malloc(numPackets * sizeof(uint32_t));
 	for (int packetNum = 0; packetNum < numPackets; ++packetNum)
 	{
-		uint32_t toPackage = (messageID << 30) | (numPackets << 26) | (packetNum << 22) | (dataToPackage[2*packetNum + 1] << 14) | (dataToPackage[2*packetNum] << 6);
+		uint32_t toPackage = (messageID << MESSAGE_ID_POS) | (numPackets << NUM_PACKETS_POS) | (packetNum << CURRENT_PACKET_POS) | (dataToPackage[2*packetNum + 1] << (DATA_POS+8)) | (dataToPackage[2*packetNum] << DATA_POS);
 		packets[packetNum] = toPackage;
 	}
 
@@ -160,14 +167,15 @@ int main(void)
 
 	  ret = HAL_I2C_Master_Transmit(&hi2c1, accel_addr, buf, 2, HAL_MAX_DELAY);
 	  if (ret != HAL_OK) { return 1; } // return with error code 1
+
+	  // Enable ADC
+	  HAL_ADC_Start(&hadc1);
   }
   else
   {
 	  // Enable screen
 	  LiquidCrystal_init(0);
   }
-
-
 
   /* USER CODE END 2 */
 
@@ -210,12 +218,24 @@ int main(void)
 				z_str[4] = '\0';
 			}
 
+			// Package Data (Accelerometer values message ID = 0; TODO: different IDs for x,y,z
+//			uint32_t* x_str_packaged = packageData(ACCELEROMETER_UART_ID, x_str);
+//			uint32_t* y_str_packaged = packageData(ACCELEROMETER_UART_ID, y_str);
+//			uint32_t* z_str_packaged = packageData(ACCELEROMETER_UART_ID, z_str);
+//
+//			HAL_UART_Transmit(&huart5, x_str_packaged, (x_str_packaged & NUM_PACKETS_MASK) >> NUM_PACKETS_POS, 0xFFFF);
+//			HAL_UART_Transmit(&huart5, y_str_packaged, (y_str_packaged & NUM_PACKETS_MASK) >> NUM_PACKETS_POS, 0xFFFF);
+//			HAL_UART_Transmit(&huart5, z_str_packaged, (z_str_packaged & NUM_PACKETS_MASK) >> NUM_PACKETS_POS, 0xFFFF);
+
+			// Transmit accelerometer values
 			HAL_UART_Transmit(&huart5, x_str, 4, 0xFFFF);
 			HAL_UART_Transmit(&huart5, y_str, 4, 0xFFFF);
 			HAL_UART_Transmit(&huart5, z_str, 4, 0xFFFF);
 
 			// Retrieve ADC values
+			uint32_t ADC_raw = HAL_ADC_GetValue(&hadc1);
 
+			// Transmit ADC values
 			// Play on speaker
 		}
 		else

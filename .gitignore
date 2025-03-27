@@ -1,2 +1,27 @@
-.DS_Store
+# Ignore build artifacts
+**/build/
+**/bin/
+**/obj/
+**/*.elf
+**/*.bin
+**/*.hex
+**/*.map
+**/*.lst
+**/*.o
+**/*.d
+**/*.a
+**/*.so
+**/*.exe
+
+# STM32Cube auto-generated files
+**/.settings/
 **/Debug/
+**/Release/
+**/STM32CubeIDE/
+
+# Ignore system files
+**/.DS_Store
+**/Thumbs.db
+**/*.swp
+**/*.swo
+**/*.swn
