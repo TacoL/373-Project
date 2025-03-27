@@ -23,6 +23,7 @@
 /* USER CODE BEGIN Includes */
 #include <stdio.h>
 #include "LiquidCrystal.h"
+#include <math.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -68,8 +69,20 @@ static void MX_DAC1_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+
+#define MESSAGE_ID_MASK (0b11 << 30)
+#define NUM_PACKETS_MASK (0xF << 26)
+#define CURRENT_PACKET_MASK (0xF << 22)
+#define DATA_MASK (0xFFFF << 6)
+
 // package data so that UART can receive consistent packages
-uint32_t packageData(char* dataToPackage)
+// Data will be packaged into a 32-bit packets where:
+// Bits 31-30: Message ID
+// Bits 29-26: Total Number of Packets for this transmission
+// Bits 25-22: Current packet number
+// Bits 21-06: Data (16 bits = 2 chars)
+// Bits 05-00: Reserved for idk
+uint32_t* packageData(int messageID, char* dataToPackage)
 {
 	// Get size of data
 	int size = 0;
@@ -79,6 +92,20 @@ uint32_t packageData(char* dataToPackage)
 		size++;
 		dummy++;
 	}
+
+	// Calculate number of packets (2 chars per packet)
+	int numPackets = ceil(size / 2);
+	if (numPackets > 16) { return NULL; }
+
+	// Package Data
+	uint32_t* packets = (uint32_t*)malloc(numPackets * sizeof(uint32_t));
+	for (int packetNum = 0; packetNum < numPackets; ++packetNum)
+	{
+		uint32_t toPackage = (messageID << 30) | (numPackets << 26) | (packetNum << 22) | (dataToPackage[2*packetNum + 1] << 14) | (dataToPackage[2*packetNum] << 6);
+		packets[packetNum] = toPackage;
+	}
+
+	return packets;
 }
 /* USER CODE END 0 */
 
