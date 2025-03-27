@@ -99,7 +99,7 @@ int main(void)
   HAL_Init();
 
   /* USER CODE BEGIN Init */
-  uint8_t mode = 1; // 0 for flex sensor / acc board; 1 for lcd board
+  uint8_t mode = 0; // 0 for flex sensor / acc board; 1 for lcd board
   /* USER CODE END Init */
 
   /* Configure the system clock */
@@ -163,50 +163,56 @@ int main(void)
 			z_val = (buf[5] << 8) | buf[4];
 
 			// Send to other device
-			sprintf(x_str, "%.5f", (float)x_val / 16000.0);
-			sprintf(y_str, "%.5f", (float)y_val / 16000.0);
-			sprintf(z_str, "%.5f", (float)z_val / 16000.0);
+			sprintf(x_str, "%.1f", (float)x_val / 16000.0);
+			sprintf(y_str, "%.1f", (float)y_val / 16000.0);
+			sprintf(z_str, "%.1f", (float)z_val / 16000.0);
 
-			if (x_val > 0)
+			if (x_val >= 0)
 			{
-				x_str[7] = ' ';
-				x_str[8] = '\0';
+				x_str[3] = ' ';
+				x_str[4] = '\0';
 			}
-			if (y_val > 0)
+			if (y_val >= 0)
 			{
-				y_str[7] = ' ';
-				y_str[8] = '\0';
+				y_str[3] = ' ';
+				y_str[4] = '\0';
 			}
-			if (z_val > 0)
+			if (z_val >= 0)
 			{
-				z_str[7] = ' ';
-				z_str[8] = '\0';
+				z_str[3] = ' ';
+				z_str[4] = '\0';
 			}
 
-			HAL_UART_Transmit(&huart5, x_str, 8, 0xFFFF);
-			HAL_UART_Transmit(&huart5, y_str, 8, 0xFFFF);
-			HAL_UART_Transmit(&huart5, z_str, 8, 0xFFFF);
-			// printf("hello world");
+			HAL_UART_Transmit(&huart5, x_str, 4, 0xFFFF);
+			HAL_UART_Transmit(&huart5, y_str, 4, 0xFFFF);
+			HAL_UART_Transmit(&huart5, z_str, 4, 0xFFFF);
+
+			// Retrieve ADC values
+
+			// Play on speaker
 		}
 		else
 		{
-			ret = HAL_UART_Receive(&huart5, buf, 24, HAL_MAX_DELAY);
+			ret = HAL_UART_Receive(&huart5, buf, 12, HAL_MAX_DELAY);
 			if (ret != HAL_OK) { LiquidCrystal_clear(); LiquidCrystal_print("ERROR: 1"); continue; }
 
-			memcpy(x_str, buf, 8);
-			memcpy(y_str, buf+8, 8);
-			memcpy(z_str, buf+16, 8);
+			memcpy(x_str, buf, 4);
+			memcpy(y_str, buf+4, 4);
+			memcpy(z_str, buf+8, 4);
 
-			x_str[8] = '\0';
-			y_str[8] = '\0';
-			z_str[8] = '\0';
+			x_str[4] = '\0';
+			y_str[4] = '\0';
+			z_str[4] = '\0';
 
 			//Print to LCD Screen
 			LiquidCrystal_clear();
-			LiquidCrystal_print("Gx: ");
+			LiquidCrystal_print("x:");
 			LiquidCrystal_print(x_str);
+			LiquidCrystal_print(" | ");
+			LiquidCrystal_print("y:");
+			LiquidCrystal_print(y_str);
 			LiquidCrystal_setCursor(0, 1);
-			LiquidCrystal_print("Gz: ");
+			LiquidCrystal_print("z:");
 			LiquidCrystal_print(z_str);
 		}
 
