@@ -133,7 +133,7 @@ int main(void)
   HAL_Init();
 
   /* USER CODE BEGIN Init */
-  uint8_t mode = 0; // 0 for flex sensor / acc board; 1 for lcd board
+  uint8_t mode = 1; // 0 for flex sensor / acc board; 1 for lcd board
   /* USER CODE END Init */
 
   /* Configure the system clock */
@@ -158,6 +158,7 @@ int main(void)
   char x_str[100];
   char y_str[100];
   char z_str[100];
+  char adc_str[100];
   if (mode == 0)
 
   {
@@ -167,9 +168,6 @@ int main(void)
 
 	  ret = HAL_I2C_Master_Transmit(&hi2c1, accel_addr, buf, 2, HAL_MAX_DELAY);
 	  if (ret != HAL_OK) { return 1; } // return with error code 1
-
-	  // Enable ADC
-	  HAL_ADC_Start(&hadc1);
   }
   else
   {
@@ -186,6 +184,7 @@ int main(void)
 		if (mode == 0)
 		{
 			HAL_Delay(500);
+
 			// Retrieve accelerometer values
 			buf[0] = lower_x;
 			ret = HAL_I2C_Master_Transmit(&hi2c1, accel_addr, buf, 1, HAL_MAX_DELAY);
@@ -197,7 +196,7 @@ int main(void)
 			y_val = (buf[3] << 8) | buf[2];
 			z_val = (buf[5] << 8) | buf[4];
 
-			// Send to other device
+			// Convert to string
 			sprintf(x_str, "%.1f", (float)x_val / 16000.0);
 			sprintf(y_str, "%.1f", (float)y_val / 16000.0);
 			sprintf(z_str, "%.1f", (float)z_val / 16000.0);
@@ -233,9 +232,16 @@ int main(void)
 			HAL_UART_Transmit(&huart5, z_str, 4, 0xFFFF);
 
 			// Retrieve ADC values
-			uint32_t ADC_raw = HAL_ADC_GetValue(&hadc1);
+			HAL_ADC_Start(&hadc1);
+		    HAL_ADC_PollForConversion(&hadc1, 0xFFFFFFFF);
+			uint32_t ADC_raw = 0;
+			ADC_raw = HAL_ADC_GetValue(&hadc1);
+
 
 			// Transmit ADC values
+			sprintf(adc_str, "%d", ADC_raw);
+			HAL_UART_Transmit(&huart5, adc_str, 16, 0xFFFF);
+
 			// Play on speaker
 		}
 		else
@@ -251,6 +257,10 @@ int main(void)
 			y_str[4] = '\0';
 			z_str[4] = '\0';
 
+			ret = HAL_UART_Receive(&huart5, buf, 16, HAL_MAX_DELAY);
+			if (ret != HAL_OK) { LiquidCrystal_clear(); LiquidCrystal_print("ERROR: 2"); continue; }
+			memcpy(adc_str, buf, 16);
+
 			//Print to LCD Screen
 			LiquidCrystal_clear();
 			LiquidCrystal_print("x:");
@@ -261,6 +271,8 @@ int main(void)
 			LiquidCrystal_setCursor(0, 1);
 			LiquidCrystal_print("z:");
 			LiquidCrystal_print(z_str);
+			LiquidCrystal_print(" | ");
+			LiquidCrystal_print(adc_str);
 		}
 
     /* USER CODE END WHILE */
