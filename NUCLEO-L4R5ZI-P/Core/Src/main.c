@@ -24,6 +24,7 @@
 #include <stdio.h>
 #include "LiquidCrystal.h"
 #include <math.h>
+#include "ArmDriver.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -53,6 +54,7 @@ DAC_HandleTypeDef hdac1;
 I2C_HandleTypeDef hi2c1;
 
 UART_HandleTypeDef huart5;
+UART_HandleTypeDef huart3;
 
 /* USER CODE BEGIN PV */
 
@@ -65,6 +67,7 @@ static void MX_UART5_Init(void);
 static void MX_I2C1_Init(void);
 static void MX_ADC1_Init(void);
 static void MX_DAC1_Init(void);
+static void MX_USART3_UART_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -133,7 +136,7 @@ int main(void)
   HAL_Init();
 
   /* USER CODE BEGIN Init */
-  uint8_t mode = 1; // 0 for flex sensor / acc board; 1 for lcd board
+  uint8_t mode = 2; // 0 for flex sensor / acc board; 1 for lcd board
   /* USER CODE END Init */
 
   /* Configure the system clock */
@@ -149,6 +152,7 @@ int main(void)
   MX_I2C1_Init();
   MX_ADC1_Init();
   MX_DAC1_Init();
+  MX_USART3_UART_Init();
   /* USER CODE BEGIN 2 */
   // init variables
   HAL_StatusTypeDef ret;
@@ -244,7 +248,7 @@ int main(void)
 
 			// Play on speaker
 		}
-		else
+		else if (mode == 1)
 		{
 			ret = HAL_UART_Receive(&huart5, buf, 12, HAL_MAX_DELAY);
 			if (ret != HAL_OK) { LiquidCrystal_clear(); LiquidCrystal_print("ERROR: 1"); continue; }
@@ -273,6 +277,18 @@ int main(void)
 			LiquidCrystal_print(z_str);
 			LiquidCrystal_print(" | ");
 			LiquidCrystal_print(adc_str);
+		}
+		else
+		{
+			char data[4];
+			uint16_t angle = 500;
+			uint16_t time = 3000; // 3 seconds (theoretically)
+
+			data[0] = (angle & 0xFF);
+			data[1] = (angle & (0xFF << 8)) >> 8;
+			data[2] = (time & 0xFF);
+			data[3] = (time & (0xFF << 8)) >> 8;
+			LX16ABus_write_no_retry(1, data, 4, 4);
 		}
 
     /* USER CODE END WHILE */
@@ -525,6 +541,54 @@ static void MX_UART5_Init(void)
 }
 
 /**
+  * @brief USART3 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_USART3_UART_Init(void)
+{
+
+  /* USER CODE BEGIN USART3_Init 0 */
+
+  /* USER CODE END USART3_Init 0 */
+
+  /* USER CODE BEGIN USART3_Init 1 */
+
+  /* USER CODE END USART3_Init 1 */
+  huart3.Instance = USART3;
+  huart3.Init.BaudRate = 115200;
+  huart3.Init.WordLength = UART_WORDLENGTH_8B;
+  huart3.Init.StopBits = UART_STOPBITS_1;
+  huart3.Init.Parity = UART_PARITY_NONE;
+  huart3.Init.Mode = UART_MODE_TX_RX;
+  huart3.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+  huart3.Init.OverSampling = UART_OVERSAMPLING_16;
+  huart3.Init.OneBitSampling = UART_ONE_BIT_SAMPLE_DISABLE;
+  huart3.Init.ClockPrescaler = UART_PRESCALER_DIV1;
+  huart3.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
+  if (HAL_UART_Init(&huart3) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  if (HAL_UARTEx_SetTxFifoThreshold(&huart3, UART_TXFIFO_THRESHOLD_1_8) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  if (HAL_UARTEx_SetRxFifoThreshold(&huart3, UART_RXFIFO_THRESHOLD_1_8) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  if (HAL_UARTEx_DisableFifoMode(&huart3) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN USART3_Init 2 */
+
+  /* USER CODE END USART3_Init 2 */
+
+}
+
+/**
   * @brief GPIO Initialization Function
   * @param None
   * @retval None
@@ -532,8 +596,8 @@ static void MX_UART5_Init(void)
 static void MX_GPIO_Init(void)
 {
   GPIO_InitTypeDef GPIO_InitStruct = {0};
-/* USER CODE BEGIN MX_GPIO_Init_1 */
-/* USER CODE END MX_GPIO_Init_1 */
+  /* USER CODE BEGIN MX_GPIO_Init_1 */
+  /* USER CODE END MX_GPIO_Init_1 */
 
   /* GPIO Ports Clock Enable */
   __HAL_RCC_GPIOE_CLK_ENABLE();
@@ -751,8 +815,8 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Alternate = GPIO_AF2_TIM4;
   HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
 
-/* USER CODE BEGIN MX_GPIO_Init_2 */
-/* USER CODE END MX_GPIO_Init_2 */
+  /* USER CODE BEGIN MX_GPIO_Init_2 */
+  /* USER CODE END MX_GPIO_Init_2 */
 }
 
 /* USER CODE BEGIN 4 */
