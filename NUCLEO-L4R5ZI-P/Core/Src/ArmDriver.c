@@ -55,9 +55,9 @@ int LX16ABus_write_no_retry(uint8_t cmd, const uint8_t *params, int param_cnt,
 //	if (myTXFlagGPIO >= 0) {
 //		digitalWrite(myTXFlagGPIO, 1);
 //	}
-	//HAL_Delay(1000);
+	HAL_Delay(1000);
 	HAL_UART_Transmit(&huart3, buf, buflen, HAL_MAX_DELAY);
-	//HAL_Delay(1000);
+	HAL_Delay(1000);
 //	if(!singlePinMode)
 //	if (myTXFlagGPIO >= 0) {
 //		digitalWrite(myTXFlagGPIO, 0);
