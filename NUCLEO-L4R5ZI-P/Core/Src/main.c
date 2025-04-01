@@ -139,7 +139,7 @@ int main(void)
   HAL_Init();
 
   /* USER CODE BEGIN Init */
-  uint8_t mode = 3; // 0 for flex sensor / acc board; 1 for lcd board
+  uint8_t mode = 1; // 0 for flex sensor / acc board; 1 for lcd board
   /* USER CODE END Init */
 
   /* Configure the system clock */
@@ -176,11 +176,12 @@ int main(void)
 
 	  ret = HAL_I2C_Master_Transmit(&hi2c1, accel_addr, buf, 2, HAL_MAX_DELAY);
 	  if (ret != HAL_OK) { return 1; } // return with error code 1
+	  LiquidCrystal_init(0);
   }
   else
   {
 	  // Enable screen
-	  LiquidCrystal_init(0);
+
   }
 
   HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_3);
@@ -197,7 +198,7 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
 	{
-		if (mode == 0)
+		if (mode == 0) // glove code
 		{
 			HAL_Delay(500);
 
@@ -241,41 +242,31 @@ int main(void)
 //			HAL_UART_Transmit(&huart5, x_str_packaged, (x_str_packaged & NUM_PACKETS_MASK) >> NUM_PACKETS_POS, 0xFFFF);
 //			HAL_UART_Transmit(&huart5, y_str_packaged, (y_str_packaged & NUM_PACKETS_MASK) >> NUM_PACKETS_POS, 0xFFFF);
 //			HAL_UART_Transmit(&huart5, z_str_packaged, (z_str_packaged & NUM_PACKETS_MASK) >> NUM_PACKETS_POS, 0xFFFF);
-
+			char x_send[8];
+			char y_send[8];
+			char z_send[8];
+			sprintf(x_send, "%d", x_val);
+			sprintf(y_send, "%d", y_val);
+			sprintf(z_send, "%d", z_val);
 			// Transmit accelerometer values
-			HAL_UART_Transmit(&huart5, x_str, 4, 0xFFFF);
-			HAL_UART_Transmit(&huart5, y_str, 4, 0xFFFF);
-			HAL_UART_Transmit(&huart5, z_str, 4, 0xFFFF);
+			HAL_UART_Transmit(&huart3, x_send, 8, 0xFFFF);
+			HAL_UART_Transmit(&huart3, y_send, 8, 0xFFFF);
+			HAL_UART_Transmit(&huart3, z_send, 8, 0xFFFF);
 
 			// Retrieve ADC values
 			HAL_ADC_Start(&hadc1);
 		    HAL_ADC_PollForConversion(&hadc1, 0xFFFFFFFF);
-			uint32_t ADC_raw = 0;
+			uint16_t ADC_raw = 0;
 			ADC_raw = HAL_ADC_GetValue(&hadc1);
 
 
 			// Transmit ADC values
 			sprintf(adc_str, "%d", ADC_raw);
-			HAL_UART_Transmit(&huart5, adc_str, 16, 0xFFFF);
-
-			// Play on speaker
-		}
-		else if (mode == 1)
-		{
-			ret = HAL_UART_Receive(&huart5, buf, 12, HAL_MAX_DELAY);
-			if (ret != HAL_OK) { LiquidCrystal_clear(); LiquidCrystal_print("ERROR: 1"); continue; }
-
-			memcpy(x_str, buf, 4);
-			memcpy(y_str, buf+4, 4);
-			memcpy(z_str, buf+8, 4);
+			//HAL_UART_Transmit(&huart5, (uint8_t*)ADC_raw, sizeof(ADC_raw), 0xFFFF);
 
 			x_str[4] = '\0';
 			y_str[4] = '\0';
 			z_str[4] = '\0';
-
-			ret = HAL_UART_Receive(&huart5, buf, 16, HAL_MAX_DELAY);
-			if (ret != HAL_OK) { LiquidCrystal_clear(); LiquidCrystal_print("ERROR: 2"); continue; }
-			memcpy(adc_str, buf, 16);
 
 			//Print to LCD Screen
 			LiquidCrystal_clear();
@@ -289,6 +280,44 @@ int main(void)
 			LiquidCrystal_print(z_str);
 			LiquidCrystal_print(" | ");
 			LiquidCrystal_print(adc_str);
+		}
+		else if (mode == 1) // vehicle code
+		{
+			ret = HAL_UART_Receive(&huart3, buf, 24, HAL_MAX_DELAY);
+			int i = 0;
+			int j = 0;
+			while(buf[i] != '\0') {
+				x_str[j] = buf[i];
+				++i;
+				++j;
+			}
+			j = 0;
+			++i;
+			while(buf[i] != '\0') {
+				y_str[j] = buf[i];
+				++i;
+				++j;
+			}
+			j = 0;
+			++i;
+			while(buf[i] != '\0') {
+				z_str[j] = buf[i];
+				++i;
+				++j;
+			}
+
+			memcpy(x_str, buf, 4);
+			memcpy(y_str, buf+4, 4);
+			memcpy(z_str, buf+8, 4);
+
+			x_str[4] = '\0';
+			y_str[4] = '\0';
+			z_str[4] = '\0';
+
+			ret = HAL_UART_Receive(&huart5, buf, 16, HAL_MAX_DELAY);
+
+			memcpy(adc_str, buf, 16);
+
 		}
 		else if (mode == 2)
 		{
@@ -645,7 +674,7 @@ static void MX_USART3_UART_Init(void)
 
   /* USER CODE END USART3_Init 1 */
   huart3.Instance = USART3;
-  huart3.Init.BaudRate = 115200;
+  huart3.Init.BaudRate = 9600;
   huart3.Init.WordLength = UART_WORDLENGTH_8B;
   huart3.Init.StopBits = UART_STOPBITS_1;
   huart3.Init.Parity = UART_PARITY_NONE;
