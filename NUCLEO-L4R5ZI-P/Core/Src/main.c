@@ -65,12 +65,12 @@ UART_HandleTypeDef huart3;
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
-static void MX_UART5_Init(void);
 static void MX_I2C1_Init(void);
 static void MX_ADC1_Init(void);
 static void MX_DAC1_Init(void);
 static void MX_USART3_UART_Init(void);
 static void MX_TIM3_Init(void);
+static void MX_UART5_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -87,6 +87,17 @@ static void MX_TIM3_Init(void);
 #define NUM_PACKETS_MASK (0xF << NUM_PACKETS_POS)
 #define CURRENT_PACKET_MASK (0xF << CURRENT_PACKET_POS)
 #define DATA_MASK (0xFFFF << DATA_POS)
+
+int motor_on = 0;
+
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
+	if(motor_on == 0) {
+		motor_on = 1;
+	}
+	else {
+		motor_on = 0;
+	}
+}
 
 // package data so that UART can receive consistent packages
 // Data will be packaged into a 32-bit packets where:
@@ -139,7 +150,7 @@ int main(void)
   HAL_Init();
 
   /* USER CODE BEGIN Init */
-  uint8_t mode = 1; // 0 for flex sensor / acc board; 1 for lcd board
+  uint8_t mode = 0; // 0 for flex sensor / acc board; 1 for lcd board
   /* USER CODE END Init */
 
   /* Configure the system clock */
@@ -151,12 +162,12 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
-  MX_UART5_Init();
   MX_I2C1_Init();
   MX_ADC1_Init();
   MX_DAC1_Init();
   MX_USART3_UART_Init();
   MX_TIM3_Init();
+  MX_UART5_Init();
   /* USER CODE BEGIN 2 */
   // init variables
   HAL_StatusTypeDef ret;
@@ -187,11 +198,11 @@ int main(void)
   HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_3);
   TIM3->PSC = 15;
   TIM3->ARR = 3999;
-  TIM3->CCR3 = 2000;
+  TIM3->CCR3 = 0;
 
   HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);
-  TIM3->CCR1 = 2000;
-
+  TIM3->CCR1 = 0;
+  int up = 1;
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -249,9 +260,9 @@ int main(void)
 			sprintf(y_send, "%d", y_val);
 			sprintf(z_send, "%d", z_val);
 			// Transmit accelerometer values
-			HAL_UART_Transmit(&huart3, x_send, 8, 0xFFFF);
-			HAL_UART_Transmit(&huart3, y_send, 8, 0xFFFF);
-			HAL_UART_Transmit(&huart3, z_send, 8, 0xFFFF);
+			HAL_UART_Transmit(&huart5, x_str, 4, 0xFFFF);
+			HAL_UART_Transmit(&huart5, y_str, 4, 0xFFFF);
+			HAL_UART_Transmit(&huart5, z_str, 4, 0xFFFF);
 
 			// Retrieve ADC values
 			HAL_ADC_Start(&hadc1);
@@ -291,6 +302,7 @@ int main(void)
 				++i;
 				++j;
 			}
+			x_str[j] = '\0';
 			j = 0;
 			++i;
 			while(buf[i] != '\0') {
@@ -298,6 +310,7 @@ int main(void)
 				++i;
 				++j;
 			}
+			y_str[j] = '\0';
 			j = 0;
 			++i;
 			while(buf[i] != '\0') {
@@ -305,19 +318,36 @@ int main(void)
 				++i;
 				++j;
 			}
+			z_str[j] = '\0';
+			//memcpy(x_str, buf, 4);
+			//memcpy(y_str, buf+4, 4);
+			//memcpy(z_str, buf+8, 4);
 
-			memcpy(x_str, buf, 4);
-			memcpy(y_str, buf+4, 4);
-			memcpy(z_str, buf+8, 4);
+			//x_str[4] = '\0';
+			//y_str[4] = '\0';
+			//z_str[4] = '\0';
 
-			x_str[4] = '\0';
-			y_str[4] = '\0';
-			z_str[4] = '\0';
-
-			ret = HAL_UART_Receive(&huart5, buf, 16, HAL_MAX_DELAY);
+			ret = HAL_UART_Receive(&huart3, buf, 16, HAL_MAX_DELAY);
 
 			memcpy(adc_str, buf, 16);
-
+			// TIM3 CHANNEL 1 = IN1
+			// TIM3 CHANNEL 2 = IN2
+			// TIM3 CHANNEL 3 = IN3
+			// TIME CHANNEL 4 = IN4
+			if(up == 1) {
+			  TIM3->CCR3 = TIM3->CCR3 + 100;
+			  HAL_Delay(100);
+			  if(TIM3->CCR3 > 4000) {
+				  up = 0;
+			  }
+			}
+			else if(up == 0) {
+			  TIM3->CCR3 = TIM3->CCR3 - 100;
+			  HAL_Delay(100);
+			  if(TIM3->CCR3 <= 0) {
+					up = 1;
+			  }
+			}
 		}
 		else if (mode == 2)
 		{
@@ -599,7 +629,15 @@ static void MX_TIM3_Init(void)
   {
     Error_Handler();
   }
+  if (HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_2) != HAL_OK)
+  {
+    Error_Handler();
+  }
   if (HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_3) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  if (HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_4) != HAL_OK)
   {
     Error_Handler();
   }
@@ -738,13 +776,11 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_WritePin(GPIOD, LCD_D6_Pin|LCD_D7_Pin|LCD_RS_Pin|LCD_RW_Pin
                           |RegisterSelect_Pin, GPIO_PIN_RESET);
 
-  /*Configure GPIO pins : PE2 PE3 */
-  GPIO_InitStruct.Pin = GPIO_PIN_2|GPIO_PIN_3;
-  GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+  /*Configure GPIO pin : PC13 */
+  GPIO_InitStruct.Pin = GPIO_PIN_13;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  GPIO_InitStruct.Alternate = GPIO_AF13_SAI1;
-  HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
+  HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
   /*Configure GPIO pins : PF0 PF1 PF2 */
   GPIO_InitStruct.Pin = GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_2;
@@ -863,14 +899,6 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Alternate = GPIO_AF13_SAI2;
   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : PC9 PC10 PC11 */
-  GPIO_InitStruct.Pin = GPIO_PIN_9|GPIO_PIN_10|GPIO_PIN_11;
-  GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
-  GPIO_InitStruct.Alternate = GPIO_AF12_SDMMC1;
-  HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
-
   /*Configure GPIO pins : PA8 PA10 */
   GPIO_InitStruct.Pin = GPIO_PIN_8|GPIO_PIN_10;
   GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
@@ -884,6 +912,14 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+  /*Configure GPIO pins : PC10 PC11 */
+  GPIO_InitStruct.Pin = GPIO_PIN_10|GPIO_PIN_11;
+  GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
+  GPIO_InitStruct.Alternate = GPIO_AF12_SDMMC1;
+  HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
   /*Configure GPIO pin : PD0 */
   GPIO_InitStruct.Pin = GPIO_PIN_0;
@@ -917,6 +953,10 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Alternate = GPIO_AF2_TIM4;
   HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
 
+  /* EXTI interrupt init*/
+  HAL_NVIC_SetPriority(EXTI15_10_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(EXTI15_10_IRQn);
+
   /* USER CODE BEGIN MX_GPIO_Init_2 */
   /* USER CODE END MX_GPIO_Init_2 */
 }
@@ -929,7 +969,7 @@ static void MX_GPIO_Init(void)
 #endif /* __GNUC__ */
 PUTCHAR_PROTOTYPE
 {
-  HAL_UART_Transmit(&huart5, (uint8_t *)&ch, 1, 0xFFFF);
+  HAL_UART_Transmit(&huart3, (uint8_t *)&ch, 1, 0xFFFF);
   return ch;
 }
 /* USER CODE END 4 */
