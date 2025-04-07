@@ -34,10 +34,18 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
+
+/*
+ * MODES:
+ * 0: Glove
+ * 1: Vehicle
+ * 2: Arm (Testing)
+ */
+#define MODE 0
+
 #define accel_addr (0b0011001 << 1)
 #define CTRL_REG1_A 0x20
 #define lower_x (0x28 | 0x80)
-
 #define ACCELEROMETER_UART_ID 0
 /* USER CODE END PD */
 
@@ -78,15 +86,15 @@ static void MX_UART5_Init(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 
-#define MESSAGE_ID_POS 30
-#define NUM_PACKETS_POS 26
-#define CURRENT_PACKET_POS 22
-#define DATA_POS 6
-
-#define MESSAGE_ID_MASK (0b11 << MESSAGE_ID_POS)
-#define NUM_PACKETS_MASK (0xF << NUM_PACKETS_POS)
-#define CURRENT_PACKET_MASK (0xF << CURRENT_PACKET_POS)
-#define DATA_MASK (0xFFFF << DATA_POS)
+//#define MESSAGE_ID_POS 30
+//#define NUM_PACKETS_POS 26
+//#define CURRENT_PACKET_POS 22
+//#define DATA_POS 6
+//
+//#define MESSAGE_ID_MASK (0b11 << MESSAGE_ID_POS)
+//#define NUM_PACKETS_MASK (0xF << NUM_PACKETS_POS)
+//#define CURRENT_PACKET_MASK (0xF << CURRENT_PACKET_POS)
+//#define DATA_MASK (0xFFFF << DATA_POS)
 
 int motor_on = 1;
 
@@ -106,31 +114,31 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 // Bits 25-22: Current packet number
 // Bits 21-06: Data (16 bits = 2 chars)
 // Bits 05-00: Reserved for idk
-uint32_t* packageData(int messageID, char* dataToPackage)
-{
-	// Get size of data
-	int size = 0;
-	char* dummy = dataToPackage;
-	while (dummy != NULL)
-	{
-		size++;
-		dummy++;
-	}
-
-	// Calculate number of packets (2 chars per packet)
-	int numPackets = ceil(size / 2);
-	if (numPackets > 16) { return NULL; }
-
-	// Package Data
-	uint32_t* packets = (uint32_t*)malloc(numPackets * sizeof(uint32_t));
-	for (int packetNum = 0; packetNum < numPackets; ++packetNum)
-	{
-		uint32_t toPackage = (messageID << MESSAGE_ID_POS) | (numPackets << NUM_PACKETS_POS) | (packetNum << CURRENT_PACKET_POS) | (dataToPackage[2*packetNum + 1] << (DATA_POS+8)) | (dataToPackage[2*packetNum] << DATA_POS);
-		packets[packetNum] = toPackage;
-	}
-
-	return packets;
-}
+//uint32_t* packageData(int messageID, char* dataToPackage)
+//{
+//	// Get size of data
+//	int size = 0;
+//	char* dummy = dataToPackage;
+//	while (dummy != NULL)
+//	{
+//		size++;
+//		dummy++;
+//	}
+//
+//	// Calculate number of packets (2 chars per packet)
+//	int numPackets = ceil(size / 2);
+//	if (numPackets > 16) { return NULL; }
+//
+//	// Package Data
+//	uint32_t* packets = (uint32_t*)malloc(numPackets * sizeof(uint32_t));
+//	for (int packetNum = 0; packetNum < numPackets; ++packetNum)
+//	{
+//		uint32_t toPackage = (messageID << MESSAGE_ID_POS) | (numPackets << NUM_PACKETS_POS) | (packetNum << CURRENT_PACKET_POS) | (dataToPackage[2*packetNum + 1] << (DATA_POS+8)) | (dataToPackage[2*packetNum] << DATA_POS);
+//		packets[packetNum] = toPackage;
+//	}
+//
+//	return packets;
+//}
 /* USER CODE END 0 */
 
 /**
@@ -150,7 +158,7 @@ int main(void)
   HAL_Init();
 
   /* USER CODE BEGIN Init */
-  uint8_t mode = 1; // 0 for flex sensor / acc board; 1 for lcd board
+
   /* USER CODE END Init */
 
   /* Configure the system clock */
@@ -178,78 +186,74 @@ int main(void)
   char y_str[100];
   char z_str[100];
   char adc_str[100];
-  if (mode == 0)
 
-  {
-	  // Enable accelerometer
-	  buf[0] = CTRL_REG1_A;
-	  buf[1] = 0b10010111;
+  #if MODE == 0
+    // Enable accelerometer
+    buf[0] = CTRL_REG1_A;
+    buf[1] = 0b10010111;
 
-	  ret = HAL_I2C_Master_Transmit(&hi2c1, accel_addr, buf, 2, HAL_MAX_DELAY);
-	  if (ret != HAL_OK) { return 1; } // return with error code 1
-	  LiquidCrystal_init(0);
-  }
-  else
-  {
-	  // Enable screen
+    ret = HAL_I2C_Master_Transmit(&hi2c1, accel_addr, buf, 2, HAL_MAX_DELAY);
+    if (ret != HAL_OK) { return 1; } // return with error code 1
 
-  }
+    // Enable screen
+    LiquidCrystal_init(0);
+  #elif MODE == 2
+	HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_3);
+	TIM3->PSC = 7;
+	TIM3->ARR = 3999;
 
-  HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_3);
-  TIM3->PSC = 7;
-  TIM3->ARR = 3999;
-  TIM3->CCR3 = 0;
+	HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);
+	HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_2);
+	HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_4);
+	TIM3->CCR1 = 0;
+	TIM3->CCR2 = 0;
+	TIM3->CCR3 = 0;
+	TIM3->CCR4 = 0;
+  #endif
 
-  HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);
-  HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_2);
-  HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_4);
-  TIM3->CCR1 = 0;
-  TIM3->CCR2 = 0;
-  TIM3->CCR4 = 0;
-  int up = 1;
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
-	{
-		if (mode == 0) // glove code
+  {
+	#if MODE == 0
+	  	HAL_Delay(50);
+
+		// Retrieve accelerometer values
+		buf[0] = lower_x;
+		ret = HAL_I2C_Master_Transmit(&hi2c1, accel_addr, buf, 1, HAL_MAX_DELAY);
+		if (ret != HAL_OK) { continue; }
+		ret = HAL_I2C_Master_Receive(&hi2c1, accel_addr, buf, 6, HAL_MAX_DELAY);
+		if (ret != HAL_OK) { continue; }
+
+		x_val = (buf[1] << 8) | buf[0];
+		y_val = (buf[3] << 8) | buf[2];
+		z_val = (buf[5] << 8) | buf[4];
+
+		// Convert to string
+		sprintf(x_str, "%.1f", (float)x_val / 16000.0);
+		sprintf(y_str, "%.1f", (float)y_val / 16000.0);
+		sprintf(z_str, "%.1f", (float)z_val / 16000.0);
+
+		if (x_val >= 0)
 		{
-			HAL_Delay(50);
+			x_str[3] = ' ';
+			x_str[4] = '\0';
+		}
+		if (y_val >= 0)
+		{
+			y_str[3] = ' ';
+			y_str[4] = '\0';
+		}
+		if (z_val >= 0)
+		{
+			z_str[3] = ' ';
+			z_str[4] = '\0';
+		}
 
-			// Retrieve accelerometer values
-			buf[0] = lower_x;
-			ret = HAL_I2C_Master_Transmit(&hi2c1, accel_addr, buf, 1, HAL_MAX_DELAY);
-			if (ret != HAL_OK) { continue; }
-			ret = HAL_I2C_Master_Receive(&hi2c1, accel_addr, buf, 6, HAL_MAX_DELAY);
-			if (ret != HAL_OK) { continue; }
-
-			x_val = (buf[1] << 8) | buf[0];
-			y_val = (buf[3] << 8) | buf[2];
-			z_val = (buf[5] << 8) | buf[4];
-
-			// Convert to string
-			sprintf(x_str, "%.1f", (float)x_val / 16000.0);
-			sprintf(y_str, "%.1f", (float)y_val / 16000.0);
-			sprintf(z_str, "%.1f", (float)z_val / 16000.0);
-
-			if (x_val >= 0)
-			{
-				x_str[3] = ' ';
-				x_str[4] = '\0';
-			}
-			if (y_val >= 0)
-			{
-				y_str[3] = ' ';
-				y_str[4] = '\0';
-			}
-			if (z_val >= 0)
-			{
-				z_str[3] = ' ';
-				z_str[4] = '\0';
-			}
-
-			// Package Data (Accelerometer values message ID = 0; TODO: different IDs for x,y,z
+		// Package Data (Accelerometer values message ID = 0; TODO: different IDs for x,y,z
 //			uint32_t* x_str_packaged = packageData(ACCELEROMETER_UART_ID, x_str);
 //			uint32_t* y_str_packaged = packageData(ACCELEROMETER_UART_ID, y_str);
 //			uint32_t* z_str_packaged = packageData(ACCELEROMETER_UART_ID, z_str);
@@ -257,187 +261,175 @@ int main(void)
 //			HAL_UART_Transmit(&huart5, x_str_packaged, (x_str_packaged & NUM_PACKETS_MASK) >> NUM_PACKETS_POS, 0xFFFF);
 //			HAL_UART_Transmit(&huart5, y_str_packaged, (y_str_packaged & NUM_PACKETS_MASK) >> NUM_PACKETS_POS, 0xFFFF);
 //			HAL_UART_Transmit(&huart5, z_str_packaged, (z_str_packaged & NUM_PACKETS_MASK) >> NUM_PACKETS_POS, 0xFFFF);
-			char x_send[8];
-			char y_send[8];
-			char z_send[8];
-			sprintf(x_send, "%d", x_val);
-			sprintf(y_send, "%d", y_val);
-			sprintf(z_send, "%d", z_val);
-			// Transmit accelerometer values
-			HAL_UART_Transmit(&huart5, x_send, 8, 0xFFFF);
-			HAL_UART_Transmit(&huart5, y_send, 8, 0xFFFF);
-			HAL_UART_Transmit(&huart5, z_send, 8, 0xFFFF);
+		char x_send[8];
+		char y_send[8];
+		char z_send[8];
+		sprintf(x_send, "%d", x_val);
+		sprintf(y_send, "%d", y_val);
+		sprintf(z_send, "%d", z_val);
+		// Transmit accelerometer values
+		HAL_UART_Transmit(&huart5, x_send, 8, 0xFFFF);
+		HAL_UART_Transmit(&huart5, y_send, 8, 0xFFFF);
+		HAL_UART_Transmit(&huart5, z_send, 8, 0xFFFF);
 
-			// Retrieve ADC values
-			HAL_ADC_Start(&hadc1);
-		    HAL_ADC_PollForConversion(&hadc1, 0xFFFFFFFF);
-			uint16_t ADC_raw = 0;
-			ADC_raw = HAL_ADC_GetValue(&hadc1);
+		// Retrieve ADC values
+		HAL_ADC_Start(&hadc1);
+		HAL_ADC_PollForConversion(&hadc1, 0xFFFFFFFF);
+		uint16_t ADC_raw = 0;
+		ADC_raw = HAL_ADC_GetValue(&hadc1);
 
 
-			// Transmit ADC (flex sensor) values
-			sprintf(adc_str, "%d", ADC_raw);
-			HAL_UART_Transmit(&huart5, adc_str, 16, 0xFFFF);
+		// Transmit ADC (flex sensor) values
+		sprintf(adc_str, "%d", ADC_raw);
+		HAL_UART_Transmit(&huart5, adc_str, 16, 0xFFFF);
 
-			//Print to LCD Screen
-			LiquidCrystal_clear();
-			LiquidCrystal_print("x:");
-			LiquidCrystal_print(x_send);
-			//LiquidCrystal_print(" | ");
-			LiquidCrystal_print("y:");
-			LiquidCrystal_print(y_send);
-			LiquidCrystal_setCursor(0, 1);
-			LiquidCrystal_print("z:");
-			LiquidCrystal_print(z_send);
-			//LiquidCrystal_print(" | ");
-			//LiquidCrystal_print(adc_str);
+		//Print to LCD Screen
+		LiquidCrystal_clear();
+		LiquidCrystal_print("x:");
+		LiquidCrystal_print(x_send);
+		//LiquidCrystal_print(" | ");
+		LiquidCrystal_print("y:");
+		LiquidCrystal_print(y_send);
+		LiquidCrystal_setCursor(0, 1);
+		LiquidCrystal_print("z:");
+		LiquidCrystal_print(z_send);
+		//LiquidCrystal_print(" | ");
+		//LiquidCrystal_print(adc_str);
+	#elif MODE == 1
+		ret = HAL_UART_Receive(&huart5, buf, 24, HAL_MAX_DELAY);
+		int i = 0;
+		int j = 0;
+		while(buf[i] != '\0') {
+			x_str[j] = buf[i];
+			++j;
+			++i;
 		}
-		else if (mode == 1) // vehicle code
-		{
-			ret = HAL_UART_Receive(&huart5, buf, 24, HAL_MAX_DELAY);
-			int i = 0;
-			int j = 0;
-			while(buf[i] != '\0') {
-				x_str[j] = buf[i];
-				++j;
-				++i;
-			}
-			x_str[j] = '\0';
-			j = 0;
-			i = 8;
-			while(buf[i] != '\0') {
-				y_str[j] = buf[i];
-				++j;
-				++i;
-			}
-			y_str[j] = '\0';
-			j = 0;
-			i = 16;
-			while(buf[i] != '\0') {
-				z_str[j] = buf[i];
-				++j;
-				++i;
-			}
-			z_str[j] = '\0';
+		x_str[j] = '\0';
+		j = 0;
+		i = 8;
+		while(buf[i] != '\0') {
+			y_str[j] = buf[i];
+			++j;
+			++i;
+		}
+		y_str[j] = '\0';
+		j = 0;
+		i = 16;
+		while(buf[i] != '\0') {
+			z_str[j] = buf[i];
+			++j;
+			++i;
+		}
+		z_str[j] = '\0';
 
-			// Receive flex sensor values
-			ret = HAL_UART_Receive(&huart5, buf, 16, HAL_MAX_DELAY);
-			memcpy(adc_str, buf, 16);
+		// Receive flex sensor values
+		ret = HAL_UART_Receive(&huart5, buf, 16, HAL_MAX_DELAY);
+		memcpy(adc_str, buf, 16);
 
-			// Convert accelerometer values to pwm
-			// Note: range: 500-12500
-			x_val = atoi(x_str);
-			y_val = atoi(y_str);
-			z_val = atoi(z_str);
+		// Convert accelerometer values to pwm
+		// Note: range: 500-12500
+		x_val = atoi(x_str);
+		y_val = atoi(y_str);
+		z_val = atoi(z_str);
 
-			x_val = (abs(x_val) > 12500) ? (x_val < 0 ? -12000 : 12000) : x_val;
-			x_val = (abs(x_val) < 1000) ? 0 : x_val;
-			y_val = (abs(y_val) > 12500) ? (y_val < 0 ? -12000 : 12000) : y_val;
-			y_val = (abs(y_val) < 1000) ? 0 : y_val;
-			z_val = (abs(z_val) > 12500) ? (z_val < 0 ? -12000 : 12000) : z_val;
-			z_val = (abs(z_val) < 1000) ? 0 : z_val;
+		x_val = (abs(x_val) > 12500) ? (x_val < 0 ? -12000 : 12000) : x_val;
+		x_val = (abs(x_val) < 1000) ? 0 : x_val;
+		y_val = (abs(y_val) > 12500) ? (y_val < 0 ? -12000 : 12000) : y_val;
+		y_val = (abs(y_val) < 1000) ? 0 : y_val;
+		z_val = (abs(z_val) > 12500) ? (z_val < 0 ? -12000 : 12000) : z_val;
+		z_val = (abs(z_val) < 1000) ? 0 : z_val;
 
-			float x_float = x_val / 12000.0;
-			float y_float = y_val / 12000.0;
-			float z_float = z_val / 12000.0;
+		float x_float = x_val / 12000.0;
+		float y_float = y_val / 12000.0;
+		float z_float = z_val / 12000.0;
 
-			x_float = x_float * 1023;
-			y_float = y_float * 1023;
-			z_float = z_float * 1023;
+		x_float = x_float * 1023;
+		y_float = y_float * 1023;
+		z_float = z_float * 1023;
 
-			float nMotPremixL, nMotPremixR, nPivSpeed, fPivScale, nMotMixL, nMotMixR;
+		float nMotPremixL, nMotPremixR, nPivSpeed, fPivScale, nMotMixL, nMotMixR;
 
-			if (y_float >= 0) {
-			  // Forward
-			  nMotPremixL = (x_float>=0)? 1023.0 : (1023.0 + x_float);
-			  nMotPremixR = (x_float>=0)? (1023.0 - x_float) : 1023.0;
-			} else {
-			  // Reverse
-			  nMotPremixL = (x_float>=0)? (1023.0 - x_float) : 1023.0;
-			  nMotPremixR = (x_float>=0)? 1023.0 : (1023.0 + x_float);
-			}
+		if (y_float >= 0) {
+		  // Forward
+		  nMotPremixL = (x_float>=0)? 1023.0 : (1023.0 + x_float);
+		  nMotPremixR = (x_float>=0)? (1023.0 - x_float) : 1023.0;
+		} else {
+		  // Reverse
+		  nMotPremixL = (x_float>=0)? (1023.0 - x_float) : 1023.0;
+		  nMotPremixR = (x_float>=0)? 1023.0 : (1023.0 + x_float);
+		}
 
-			// Scale Drive output due to Joystick Y input (throttle)
-			nMotPremixL = nMotPremixL * y_float/1023.0;
-			nMotPremixR = nMotPremixR * y_float/1023.0;
+		// Scale Drive output due to Joystick Y input (throttle)
+		nMotPremixL = nMotPremixL * y_float/1023.0;
+		nMotPremixR = nMotPremixR * y_float/1023.0;
 
-			// Now calculate pivot amount
-			// - Strength of pivot (nPivSpeed) based on Joystick X input
-			// - Blending of pivot vs drive (fPivScale) based on Joystick Y input
-			nPivSpeed = x_float;
-			fPivScale = (fabs(y_float)>1023)? 0.0 : (1.0 - fabs(y_float)/1023);
+		// Now calculate pivot amount
+		// - Strength of pivot (nPivSpeed) based on Joystick X input
+		// - Blending of pivot vs drive (fPivScale) based on Joystick Y input
+		nPivSpeed = x_float;
+		fPivScale = (fabs(y_float)>1023)? 0.0 : (1.0 - fabs(y_float)/1023);
 
 
-			// Calculate final mix of Drive and Pivot
-			nMotMixL = (1.0-fPivScale)*nMotPremixL + fPivScale*( nPivSpeed);
-			nMotMixR = (1.0-fPivScale)*nMotPremixR + fPivScale*(-nPivSpeed);
-			int CCRL = abs((int)((nMotMixL / 1023) * 4000));
-			int CCRR = abs((int)((nMotMixR / 1023) * 4000));
+		// Calculate final mix of Drive and Pivot
+		nMotMixL = (1.0-fPivScale)*nMotPremixL + fPivScale*( nPivSpeed);
+		nMotMixR = (1.0-fPivScale)*nMotPremixR + fPivScale*(-nPivSpeed);
+		int CCRL = abs((int)((nMotMixL / 1023) * 4000));
+		int CCRR = abs((int)((nMotMixR / 1023) * 4000));
 //			char x_x[10];
 //			char y_y[10];
 //			sprintf(x_x, "%.2f", x_float);
 //			sprintf(y_y, "%.2f", y_float);
 //			HAL_UART_Transmit(&huart5, x_x, 8, 0xFFFF);
 //			HAL_UART_Transmit(&huart5, y_y, 8, 0xFFFF);
-			// TIM3 CHANNEL 1 = IN1
-			// TIM3 CHANNEL 2 = IN2
-			// TIM3 CHANNEL 3 = IN3
-			// TIME CHANNEL 4 = IN4
+		// TIM3 CHANNEL 1 = IN1
+		// TIM3 CHANNEL 2 = IN2
+		// TIM3 CHANNEL 3 = IN3
+		// TIME CHANNEL 4 = IN4
 
-			// send pwm
-			if (nMotMixL > 0)
-			{
-				TIM3->CCR3 = CCRL;
-				TIM3->CCR4 = 0;
-			}
-			else
-			{
-				TIM3->CCR3 = 0;
-				TIM3->CCR4 = CCRL;
-			}
-			if (nMotMixR > 0)
-			{
-				TIM3->CCR1 = CCRR;
-				TIM3->CCR2 = 0;
-			}
-			else
-			{
-				TIM3->CCR1 = 0;
-				TIM3->CCR2 = CCRR;
-			}
-
-
-
-
-
-		}
-		else if (mode == 2)
+		// send pwm
+		if (nMotMixL > 0)
 		{
-			char data[4];
-			uint16_t angle = 500;
-			uint16_t time = 3000; // 3 seconds (theoretically)
-
-			data[0] = (angle & 0xFF);
-			data[1] = (angle & (0xFF << 8)) >> 8;
-			data[2] = (time & 0xFF);
-			data[3] = (time & (0xFF << 8)) >> 8;
-			LX16ABus_write_no_retry(1, data, 4, 4);
-
-			HAL_Delay(2);
-			angle = 500;
-			time = 3000; // 3 seconds (theoretically)
-
-			data[0] = (angle & 0xFF);
-			data[1] = (angle & (0xFF << 8)) >> 8;
-			data[2] = (time & 0xFF);
-			data[3] = (time & (0xFF << 8)) >> 8;
-			LX16ABus_write_no_retry(1, data, 4, 2);
+			TIM3->CCR3 = CCRL;
+			TIM3->CCR4 = 0;
 		}
 		else
 		{
-
+			TIM3->CCR3 = 0;
+			TIM3->CCR4 = CCRL;
 		}
+		if (nMotMixR > 0)
+		{
+			TIM3->CCR1 = CCRR;
+			TIM3->CCR2 = 0;
+		}
+		else
+		{
+			TIM3->CCR1 = 0;
+			TIM3->CCR2 = CCRR;
+		}
+	#elif MODE == 2
+		char data[4];
+		uint16_t angle = 500;
+		uint16_t time = 3000; // 3 seconds (theoretically)
 
+		data[0] = (angle & 0xFF);
+		data[1] = (angle & (0xFF << 8)) >> 8;
+		data[2] = (time & 0xFF);
+		data[3] = (time & (0xFF << 8)) >> 8;
+		LX16ABus_write_no_retry(1, data, 4, 4);
+
+		HAL_Delay(2);
+		angle = 500;
+		time = 3000; // 3 seconds (theoretically)
+
+		data[0] = (angle & 0xFF);
+		data[1] = (angle & (0xFF << 8)) >> 8;
+		data[2] = (time & 0xFF);
+		data[3] = (time & (0xFF << 8)) >> 8;
+		LX16ABus_write_no_retry(1, data, 4, 2);
+	#else
+		#error "Invalid mode"
+	#endif
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
