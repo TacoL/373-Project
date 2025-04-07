@@ -21,11 +21,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include <stdio.h>
-#include <stdlib.h>
-#include "LiquidCrystal.h"
-#include <math.h>
-#include "ArmDriver.h"
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -42,12 +38,23 @@
  * 1: Vehicle
  * 2: Arm (Testing)
  */
-#define MODE 0
+#define MODE 2
 
-#define accel_addr (0b0011001 << 1)
-#define CTRL_REG1_A 0x20
-#define lower_x (0x28 | 0x80)
-#define ACCELEROMETER_UART_ID 0
+// Add libraries as needed
+#if MODE == 0
+	#include "LiquidCrystal.h"
+
+	#define accel_addr (0b0011001 << 1)
+	#define CTRL_REG1_A 0x20
+	#define lower_x (0x28 | 0x80)
+	#define ACCELEROMETER_UART_ID 0
+#elif MODE == 1
+	#include <stdlib.h>
+	#include <math.h>
+	#include <string.h>
+#elif MODE == 2
+	#include "ArmDriver.h"
+#endif
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -97,16 +104,18 @@ static void MX_UART5_Init(void);
 //#define CURRENT_PACKET_MASK (0xF << CURRENT_PACKET_POS)
 //#define DATA_MASK (0xFFFF << DATA_POS)
 
-int motor_on = 1;
+#if MODE == 0
+	int motor_on = 1;
 
-void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
-	if(motor_on == 0) {
-		motor_on = 1;
+	void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
+		if(motor_on == 0) {
+			motor_on = 1;
+		}
+		else {
+			motor_on = 0;
+		}
 	}
-	else {
-		motor_on = 0;
-	}
-}
+#endif
 
 // package data so that UART can receive consistent packages
 // Data will be packaged into a 32-bit packets where:
@@ -178,15 +187,19 @@ int main(void)
   MX_TIM3_Init();
   MX_UART5_Init();
   /* USER CODE BEGIN 2 */
-  // init variables
-  HAL_StatusTypeDef ret;
-  uint8_t buf[50];
 
-  int16_t x_val, y_val, z_val = 0;
-  char x_str[100];
-  char y_str[100];
-  char z_str[100];
-  char adc_str[100];
+#if MODE == 0 || MODE == 1
+	// init variables
+	HAL_StatusTypeDef ret;
+	uint8_t buf[50];
+
+	int16_t x_val, y_val, z_val = 0;
+	char x_str[100];
+	char y_str[100];
+	char z_str[100];
+	char adc_str[100];
+#endif
+
 
   #if MODE == 0
     // Enable accelerometer
@@ -269,9 +282,9 @@ int main(void)
 		sprintf(y_send, "%d", y_val);
 		sprintf(z_send, "%d", z_val);
 		// Transmit accelerometer values
-		HAL_UART_Transmit(&huart5, x_send, 8, 0xFFFF);
-		HAL_UART_Transmit(&huart5, y_send, 8, 0xFFFF);
-		HAL_UART_Transmit(&huart5, z_send, 8, 0xFFFF);
+		HAL_UART_Transmit(&huart5, (const uint8_t *)x_send, 8, 0xFFFF);
+		HAL_UART_Transmit(&huart5, (const uint8_t *)y_send, 8, 0xFFFF);
+		HAL_UART_Transmit(&huart5, (const uint8_t *)z_send, 8, 0xFFFF);
 
 		// Retrieve ADC values
 		HAL_ADC_Start(&hadc1);
@@ -282,7 +295,7 @@ int main(void)
 
 		// Transmit ADC (flex sensor) values
 		sprintf(adc_str, "%d", ADC_raw);
-		HAL_UART_Transmit(&huart5, adc_str, 16, 0xFFFF);
+		HAL_UART_Transmit(&huart5, (const uint8_t *)adc_str, 16, 0xFFFF);
 
 		//Print to LCD Screen
 		LiquidCrystal_clear();
@@ -298,6 +311,8 @@ int main(void)
 		//LiquidCrystal_print(adc_str);
 	#elif MODE == 1
 		ret = HAL_UART_Receive(&huart5, buf, 24, HAL_MAX_DELAY);
+		if (ret != HAL_OK) { continue; }
+
 		int i = 0;
 		int j = 0;
 		while(buf[i] != '\0') {
@@ -417,7 +432,7 @@ int main(void)
 		data[1] = (angle & (0xFF << 8)) >> 8;
 		data[2] = (time & 0xFF);
 		data[3] = (time & (0xFF << 8)) >> 8;
-		LX16ABus_write_no_retry(1, data, 4, 4);
+		LX16ABus_write_no_retry(1, (const uint8_t *)data, 4, 4);
 
 		HAL_Delay(2);
 		angle = 500;
@@ -427,7 +442,7 @@ int main(void)
 		data[1] = (angle & (0xFF << 8)) >> 8;
 		data[2] = (time & 0xFF);
 		data[3] = (time & (0xFF << 8)) >> 8;
-		LX16ABus_write_no_retry(1, data, 4, 2);
+		LX16ABus_write_no_retry(1, (const uint8_t *)data, 4, 2);
 	#else
 		#error "Invalid mode"
 	#endif
