@@ -442,13 +442,13 @@ int main(void)
 		 * 5: Shoulder pitch (?)
 		 * 6: Shoulder yaw (?)
 		 */
-		LX16ABus_set_servo(1, 120, 500);
-		LX16ABus_set_servo(2, 120, 500);
-		LX16ABus_set_servo(3, 120, 500);
-		LX16ABus_set_servo(4, 120, 500);
-		LX16ABus_set_servo(5, 120, 500);
-		LX16ABus_set_servo(6, 120, 500);
+		ArmPos(0);
 		HAL_Delay(2000);
+		ArmPos(100);
+		HAL_Delay(2000);
+
+
+
 	#else
 		#error "Invalid mode"
 	#endif
