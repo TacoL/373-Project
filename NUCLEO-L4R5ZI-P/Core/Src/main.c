@@ -72,6 +72,7 @@ I2C_HandleTypeDef hi2c1;
 TIM_HandleTypeDef htim3;
 
 UART_HandleTypeDef huart5;
+UART_HandleTypeDef huart2;
 UART_HandleTypeDef huart3;
 
 /* USER CODE BEGIN PV */
@@ -87,6 +88,7 @@ static void MX_DAC1_Init(void);
 static void MX_USART3_UART_Init(void);
 static void MX_TIM3_Init(void);
 static void MX_UART5_Init(void);
+static void MX_USART2_UART_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -186,6 +188,7 @@ int main(void)
   MX_USART3_UART_Init();
   MX_TIM3_Init();
   MX_UART5_Init();
+  MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
 
 #if MODE == 0 || MODE == 1
@@ -211,7 +214,7 @@ int main(void)
 
     // Enable screen
     LiquidCrystal_init(0);
-  #elif MODE == 2
+  #elif MODE == 1
 	HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_3);
 	TIM3->PSC = 7;
 	TIM3->ARR = 3999;
@@ -223,6 +226,10 @@ int main(void)
 	TIM3->CCR2 = 0;
 	TIM3->CCR3 = 0;
 	TIM3->CCR4 = 0;
+  #elif MODE == 2
+	// Enable arm
+	// Note: Baud Rate = 115200
+	LX16ABus_init(&huart2);
   #endif
 
 
@@ -340,6 +347,8 @@ int main(void)
 
 		// Receive flex sensor values
 		ret = HAL_UART_Receive(&huart5, buf, 16, HAL_MAX_DELAY);
+		if (ret != HAL_OK) { continue; }
+
 		memcpy(adc_str, buf, 16);
 
 		// Convert accelerometer values to pwm
@@ -424,25 +433,20 @@ int main(void)
 			TIM3->CCR2 = CCRR;
 		}
 	#elif MODE == 2
-		char data[4];
-		uint16_t angle = 500;
-		uint16_t time = 3000; // 3 seconds (theoretically)
+		/*
+		 * ARM IDs:
+		 * 1: Open/Close Hand
+		 * 2: Wrist roll
+		 * 3: Wrist pitch
+		 * 4: Elbow pitch
+		 * 5: Shoulder pitch (?)
+		 * 6: Shoulder yaw (?)
+		 */
 
-		data[0] = (angle & 0xFF);
-		data[1] = (angle & (0xFF << 8)) >> 8;
-		data[2] = (time & 0xFF);
-		data[3] = (time & (0xFF << 8)) >> 8;
-		LX16ABus_write_no_retry(1, (const uint8_t *)data, 4, 4);
-
+		LX16ABus_set_servo(2, 500, 3000);
 		HAL_Delay(2);
-		angle = 500;
-		time = 3000; // 3 seconds (theoretically)
-
-		data[0] = (angle & 0xFF);
-		data[1] = (angle & (0xFF << 8)) >> 8;
-		data[2] = (time & 0xFF);
-		data[3] = (time & (0xFF << 8)) >> 8;
-		LX16ABus_write_no_retry(1, (const uint8_t *)data, 4, 2);
+		LX16ABus_set_servo(4, 500, 3000);
+		HAL_Delay(2);
 	#else
 		#error "Invalid mode"
 	#endif
@@ -767,6 +771,54 @@ static void MX_UART5_Init(void)
 }
 
 /**
+  * @brief USART2 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_USART2_UART_Init(void)
+{
+
+  /* USER CODE BEGIN USART2_Init 0 */
+
+  /* USER CODE END USART2_Init 0 */
+
+  /* USER CODE BEGIN USART2_Init 1 */
+
+  /* USER CODE END USART2_Init 1 */
+  huart2.Instance = USART2;
+  huart2.Init.BaudRate = 115200;
+  huart2.Init.WordLength = UART_WORDLENGTH_8B;
+  huart2.Init.StopBits = UART_STOPBITS_1;
+  huart2.Init.Parity = UART_PARITY_NONE;
+  huart2.Init.Mode = UART_MODE_TX_RX;
+  huart2.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+  huart2.Init.OverSampling = UART_OVERSAMPLING_16;
+  huart2.Init.OneBitSampling = UART_ONE_BIT_SAMPLE_DISABLE;
+  huart2.Init.ClockPrescaler = UART_PRESCALER_DIV1;
+  huart2.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
+  if (HAL_UART_Init(&huart2) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  if (HAL_UARTEx_SetTxFifoThreshold(&huart2, UART_TXFIFO_THRESHOLD_1_8) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  if (HAL_UARTEx_SetRxFifoThreshold(&huart2, UART_RXFIFO_THRESHOLD_1_8) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  if (HAL_UARTEx_DisableFifoMode(&huart2) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN USART2_Init 2 */
+
+  /* USER CODE END USART2_Init 2 */
+
+}
+
+/**
   * @brief USART3 Initialization Function
   * @param None
   * @retval None
@@ -997,14 +1049,6 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
   GPIO_InitStruct.Alternate = GPIO_AF9_CAN1;
-  HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
-
-  /*Configure GPIO pins : PD3 PD4 PD5 PD6 */
-  GPIO_InitStruct.Pin = GPIO_PIN_3|GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_6;
-  GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
-  GPIO_InitStruct.Alternate = GPIO_AF7_USART2;
   HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
 
   /*Configure GPIO pins : PB3 PB5 */

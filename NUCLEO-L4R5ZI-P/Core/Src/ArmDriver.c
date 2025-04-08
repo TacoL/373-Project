@@ -1,6 +1,23 @@
 // write a command with the provided parameters
 // returns true if the command was written without conflict onto the bus
 #include "ArmDriver.h"
+UART_HandleTypeDef* LX16ABus_huart;
+
+void LX16ABus_init(UART_HandleTypeDef* huart)
+{
+	LX16ABus_huart = huart;
+}
+
+void LX16ABus_set_servo(uint8_t servoID, uint16_t angle, uint16_t timeInMs)
+{
+	char data[4];
+	data[0] = (angle & 0xFF);
+	data[1] = (angle & (0xFF << 8)) >> 8;
+	data[2] = (timeInMs & 0xFF);
+	data[3] = (timeInMs & (0xFF << 8)) >> 8;
+
+	LX16ABus_write_no_retry(1, (const uint8_t *)data, 4, servoID);
+}
 
 int LX16ABus_write_no_retry(uint8_t cmd, const uint8_t *params, int param_cnt,
 		uint8_t MYID) {
@@ -55,9 +72,9 @@ int LX16ABus_write_no_retry(uint8_t cmd, const uint8_t *params, int param_cnt,
 //	if (myTXFlagGPIO >= 0) {
 //		digitalWrite(myTXFlagGPIO, 1);
 //	}
-	HAL_Delay(1000);
-	HAL_UART_Transmit(&huart3, buf, buflen, HAL_MAX_DELAY);
-	HAL_Delay(1000);
+	HAL_Delay(1);
+	HAL_UART_Transmit(LX16ABus_huart, buf, buflen, HAL_MAX_DELAY);
+	HAL_Delay(1);
 //	if(!singlePinMode)
 //	if (myTXFlagGPIO >= 0) {
 //		digitalWrite(myTXFlagGPIO, 0);
