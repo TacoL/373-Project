@@ -2,21 +2,29 @@
 // returns true if the command was written without conflict onto the bus
 #include "ArmDriver.h"
 UART_HandleTypeDef* LX16ABus_huart;
+float conversionRatio = 0.24; // 240 degrees/1000 steps = 0.24 degrees/step
 
 void LX16ABus_init(UART_HandleTypeDef* huart)
 {
 	LX16ABus_huart = huart;
 }
 
-void LX16ABus_set_servo(uint8_t servoID, uint16_t angle, uint16_t timeInMs)
+/*
+ * Range of angle is 0-240 degrees
+ * Range of time is 0-30000 ms
+ */
+void LX16ABus_set_servo(uint8_t servoID, uint16_t angleInDegrees, uint16_t timeInMs)
 {
+	uint16_t angleInSteps = angleInDegrees / conversionRatio;
+
 	char data[4];
-	data[0] = (angle & 0xFF);
-	data[1] = (angle & (0xFF << 8)) >> 8;
+	data[0] = (angleInSteps & 0xFF);
+	data[1] = (angleInSteps & (0xFF << 8)) >> 8;
 	data[2] = (timeInMs & 0xFF);
 	data[3] = (timeInMs & (0xFF << 8)) >> 8;
 
 	LX16ABus_write_no_retry(1, (const uint8_t *)data, 4, servoID);
+	//HAL_Delay(timeInMs);
 }
 
 int LX16ABus_write_no_retry(uint8_t cmd, const uint8_t *params, int param_cnt,
