@@ -69,6 +69,7 @@ DAC_HandleTypeDef hdac1;
 
 I2C_HandleTypeDef hi2c1;
 
+TIM_HandleTypeDef htim2;
 TIM_HandleTypeDef htim3;
 
 UART_HandleTypeDef huart5;
@@ -89,6 +90,7 @@ static void MX_USART3_UART_Init(void);
 static void MX_TIM3_Init(void);
 static void MX_UART5_Init(void);
 static void MX_USART2_UART_Init(void);
+static void MX_TIM2_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -189,9 +191,10 @@ int main(void)
   MX_TIM3_Init();
   MX_UART5_Init();
   MX_USART2_UART_Init();
+  MX_TIM2_Init();
   /* USER CODE BEGIN 2 */
 
-#if MODE == 0 || MODE == 1
+if(MODE == 1 || MODE ==0) {
 	// init variables
 	HAL_StatusTypeDef ret;
 	uint8_t buf[50];
@@ -201,8 +204,8 @@ int main(void)
 	char y_str[100];
 	char z_str[100];
 	char adc_str[100];
-#endif
 
+}
 
   #if MODE == 0
     // Enable accelerometer
@@ -443,12 +446,48 @@ int main(void)
 		 * 6: Shoulder yaw (?)
 		 */
 		ArmPos(0);
-		HAL_Delay(2000);
-		ArmPos(100);
-		HAL_Delay(2000);
-
-
-
+//		for(int i = 0; i < 100; ++i) {
+//			ArmPos(i);
+//			HAL_Delay(100);
+//		}
+//		for(int i = 100; i > 0; --i) {
+//			ArmPos(i);
+//			HAL_Delay(100);
+//		}
+//		ret = HAL_UART_Receive(&huart5, buf, 24, HAL_MAX_DELAY);
+//		if (ret != HAL_OK) { continue; }
+//
+//		int i = 0;
+//		int j = 0;
+//		while(buf[i] != '\0') {
+//			x_str[j] = buf[i];
+//			++j;
+//			++i;
+//		}
+//		x_str[j] = '\0';
+//		j = 0;
+//		i = 8;
+//		while(buf[i] != '\0') {
+//			y_str[j] = buf[i];
+//			++j;
+//			++i;
+//		}
+//		y_str[j] = '\0';
+//		j = 0;
+//		i = 16;
+//		while(buf[i] != '\0') {
+//			z_str[j] = buf[i];
+//			++j;
+//			++i;
+//		}
+//		z_str[j] = '\0';
+//		x_val = atoi(x_str);
+//		y_val = atoi(y_str);
+//		z_val = atoi(z_str);
+//		y_val = (abs(y_val) > 12500) ? (y_val < 0 ? -12000 : 12000) : y_val;
+//		y_val = (abs(y_val) < 1000) ? 0 : y_val;
+//		y_val = abs(y_val);
+//		ArmPos((int)((y_val/12000.0)*100));
 	#else
 		#error "Invalid mode"
 	#endif
@@ -650,6 +689,51 @@ static void MX_I2C1_Init(void)
   /* USER CODE BEGIN I2C1_Init 2 */
 
   /* USER CODE END I2C1_Init 2 */
+
+}
+
+/**
+  * @brief TIM2 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_TIM2_Init(void)
+{
+
+  /* USER CODE BEGIN TIM2_Init 0 */
+
+  /* USER CODE END TIM2_Init 0 */
+
+  TIM_ClockConfigTypeDef sClockSourceConfig = {0};
+  TIM_MasterConfigTypeDef sMasterConfig = {0};
+
+  /* USER CODE BEGIN TIM2_Init 1 */
+
+  /* USER CODE END TIM2_Init 1 */
+  htim2.Instance = TIM2;
+  htim2.Init.Prescaler = 3;
+  htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim2.Init.Period = 4294967295;
+  htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  htim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  if (HAL_TIM_Base_Init(&htim2) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
+  if (HAL_TIM_ConfigClockSource(&htim2, &sClockSourceConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+  if (HAL_TIMEx_MasterConfigSynchronization(&htim2, &sMasterConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN TIM2_Init 2 */
+
+  /* USER CODE END TIM2_Init 2 */
 
 }
 
@@ -922,14 +1006,6 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Alternate = GPIO_AF13_SAI1;
   HAL_GPIO_Init(GPIOF, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : PA0 */
-  GPIO_InitStruct.Pin = GPIO_PIN_0;
-  GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  GPIO_InitStruct.Alternate = GPIO_AF1_TIM2;
-  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
-
   /*Configure GPIO pins : PA5 PA6 PA7 */
   GPIO_InitStruct.Pin = GPIO_PIN_5|GPIO_PIN_6|GPIO_PIN_7;
   GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
@@ -973,14 +1049,6 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   GPIO_InitStruct.Alternate = GPIO_AF3_TIM1_COMP1;
   HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
-
-  /*Configure GPIO pin : PB10 */
-  GPIO_InitStruct.Pin = GPIO_PIN_10;
-  GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  GPIO_InitStruct.Alternate = GPIO_AF1_TIM2;
-  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
   /*Configure GPIO pins : PB12 PB13 PB15 */
   GPIO_InitStruct.Pin = GPIO_PIN_12|GPIO_PIN_13|GPIO_PIN_15;

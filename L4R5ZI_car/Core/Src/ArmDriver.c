@@ -81,9 +81,7 @@ int LX16ABus_write_no_retry(uint8_t cmd, const uint8_t *params, int param_cnt,
 //	if (myTXFlagGPIO >= 0) {
 //		digitalWrite(myTXFlagGPIO, 1);
 //	}
-	HAL_Delay(1);
 	HAL_UART_Transmit(LX16ABus_huart, buf, buflen, HAL_MAX_DELAY);
-	HAL_Delay(1);
 //	if(!singlePinMode)
 //	if (myTXFlagGPIO >= 0) {
 //		digitalWrite(myTXFlagGPIO, 0);
@@ -131,11 +129,11 @@ int LX16ABus_write_no_retry(uint8_t cmd, const uint8_t *params, int param_cnt,
 }
 
 void ArmPos(int pos){
-	LX16ABus_set_servo(5, 40+((pos/100.0)*80), 1000);
-	LX16ABus_set_servo(4, 180-((pos/100.0)*60), 1000);
-	LX16ABus_set_servo(3, 180-((pos/100.0)*90), 1000);
-	LX16ABus_set_servo(2, 120, 1000);
-	LX16ABus_set_servo(6, 120, 1000);
+	LX16ABus_set_servo(5, 200-((pos/100.0)*80), 120);
+	LX16ABus_set_servo(4, 180-((pos/100.0)*60), 120);
+	LX16ABus_set_servo(3, 180-((pos/100.0)*90), 120);
+	LX16ABus_set_servo(2, 180, 120);
+	LX16ABus_set_servo(6, 120, 120);
 
 }
 
