@@ -21,7 +21,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "LiquidCrystal.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -31,7 +31,10 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-
+#define accel_addr (0b0011001 << 1)
+#define CTRL_REG1_A 0x20
+#define lower_x (0x28 | 0x80)
+#define ACCELEROMETER_UART_ID 0
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -99,12 +102,80 @@ int main(void)
   MX_ADC1_Init();
   /* USER CODE BEGIN 2 */
 
+    // Initialize variables
+    HAL_StatusTypeDef ret;
+  	uint8_t buf[50];
+
+	int16_t x_val, y_val, z_val = 0;
+	char x_send[8];
+	char y_send[8];
+	char z_send[8];
+	char adc_str[16];
+
+	// Enable accelerometer
+	buf[0] = CTRL_REG1_A;
+	buf[1] = 0b10010111;
+
+	ret = HAL_I2C_Master_Transmit(&hi2c3, accel_addr, buf, 2, HAL_MAX_DELAY);
+	if (ret != HAL_OK) { return 1; } // return with error code 1
+
+	// Enable screen
+	LiquidCrystal_init(0);
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+	HAL_Delay(50);
+	char final_send[41];
+	final_send[0] = '#';
+
+	// Retrieve accelerometer values
+	buf[0] = lower_x;
+	ret = HAL_I2C_Master_Transmit(&hi2c3, accel_addr, buf, 1, HAL_MAX_DELAY);
+	if (ret != HAL_OK) { continue; }
+	ret = HAL_I2C_Master_Receive(&hi2c3, accel_addr, buf, 6, HAL_MAX_DELAY);
+	if (ret != HAL_OK) { continue; }
+
+	x_val = (buf[1] << 8) | buf[0];
+	y_val = (buf[3] << 8) | buf[2];
+	z_val = (buf[5] << 8) | buf[4];
+
+	sprintf(x_send, "%d", x_val);
+	sprintf(y_send, "%d", y_val);
+	sprintf(z_send, "%d", z_val);
+
+	// Package accelerometer values
+	memcpy(final_send+1, x_send, 8);
+	memcpy(final_send+9, y_send, 8);
+	memcpy(final_send+17, z_send, 8);
+
+	// Retrieve ADC values
+	HAL_ADC_Start(&hadc1);
+	HAL_ADC_PollForConversion(&hadc1, 0xFFFFFFFF);
+	uint16_t ADC_raw = 0;
+	ADC_raw = HAL_ADC_GetValue(&hadc1);
+
+	// Transmit ADC (flex sensor) values
+	sprintf(adc_str, "%d", ADC_raw);
+	memcpy(final_send+25, adc_str, 16);
+	HAL_UART_Transmit(&huart2, (const uint8_t *)final_send, 41, 0xFFFF);
+
+	//Print to LCD Screen
+	LiquidCrystal_clear();
+	LiquidCrystal_print("x:");
+	LiquidCrystal_print(x_send);
+	//LiquidCrystal_print(" | ");
+	LiquidCrystal_print("y:");
+	LiquidCrystal_print(y_send);
+	LiquidCrystal_setCursor(0, 1);
+	LiquidCrystal_print("z:");
+	LiquidCrystal_print(z_send);
+	//LiquidCrystal_print(" | ");
+	//LiquidCrystal_print(adc_str);
+
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
