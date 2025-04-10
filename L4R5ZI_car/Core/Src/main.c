@@ -336,6 +336,9 @@ int main(void)
 //			HAL_Delay(120);
 //		}
 
+		// Look for start character
+		ret = HAL_UART_Receive(&huart5, buf, 1, 1000);
+		if (ret != HAL_OK || buf[0] != '#') { continue; }
 
 		ret = HAL_UART_Receive(&huart5, buf, 24, 1000);
 		if (ret != HAL_OK) { continue; }
@@ -382,6 +385,10 @@ int main(void)
 		}
 
 		// Receive flex sensor values
+		// Look for start character
+		ret = HAL_UART_Receive(&huart5, buf, 1, 1000);
+		if (ret != HAL_OK || buf[0] != '#') { continue; }
+
 		ret = HAL_UART_Receive(&huart5, buf, 16, 1000);
 		if (ret != HAL_OK) { continue; }
 

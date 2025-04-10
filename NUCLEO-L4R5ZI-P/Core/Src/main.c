@@ -288,13 +288,22 @@ int main(void)
 		char x_send[8];
 		char y_send[8];
 		char z_send[8];
+
+		char acc_send[25];
+		acc_send[0] = '#';
 		sprintf(x_send, "%d", x_val);
 		sprintf(y_send, "%d", y_val);
 		sprintf(z_send, "%d", z_val);
+
+		memcpy(acc_send+1, x_send, 8);
+		memcpy(acc_send+9, y_send, 8);
+		memcpy(acc_send+17, z_send, 8);
+
 		// Transmit accelerometer values
-		HAL_UART_Transmit(&huart5, (const uint8_t *)x_send, 8, 0xFFFF);
-		HAL_UART_Transmit(&huart5, (const uint8_t *)y_send, 8, 0xFFFF);
-		HAL_UART_Transmit(&huart5, (const uint8_t *)z_send, 8, 0xFFFF);
+		HAL_UART_Transmit(&huart5, (const uint8_t *)acc_send, 25, 0xFFFF);
+//		HAL_UART_Transmit(&huart5, (const uint8_t *)x_send, 8, 0xFFFF);
+//		HAL_UART_Transmit(&huart5, (const uint8_t *)y_send, 8, 0xFFFF);
+//		HAL_UART_Transmit(&huart5, (const uint8_t *)z_send, 8, 0xFFFF);
 
 		// Retrieve ADC values
 		HAL_ADC_Start(&hadc1);
@@ -304,8 +313,12 @@ int main(void)
 
 
 		// Transmit ADC (flex sensor) values
+		char flex_send[17];
+		flex_send[0] = '#';
+
 		sprintf(adc_str, "%d", ADC_raw);
-		HAL_UART_Transmit(&huart5, (const uint8_t *)adc_str, 16, 0xFFFF);
+		memcpy(flex_send+1, adc_str, 16);
+		HAL_UART_Transmit(&huart5, (const uint8_t *)flex_send, 17, 0xFFFF);
 
 		//Print to LCD Screen
 		LiquidCrystal_clear();
