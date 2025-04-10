@@ -340,7 +340,7 @@ int main(void)
 		ret = HAL_UART_Receive(&huart5, buf, 1, 1000);
 		if (ret != HAL_OK || buf[0] != '#') { continue; }
 
-		ret = HAL_UART_Receive(&huart5, buf, 24, 1000);
+		ret = HAL_UART_Receive(&huart5, buf, 40, 1000);
 		if (ret != HAL_OK) { continue; }
 
 		int i = 0;
@@ -373,26 +373,28 @@ int main(void)
 		x_val = atoi(x_str);
 		y_val = atoi(y_str);
 		z_val = atoi(z_str);
-		y_val = (abs(y_val) > 12500) ? (y_val < 0 ? -12000 : 12000) : y_val;
+
+		y_val = (abs(y_val) > 12000) ? (y_val < 0 ? -12000 : 12000) : y_val;
 		y_val = (abs(y_val) < 1000) ? 0 : y_val;
 		y_val = abs(y_val);
-		k++;
-		if(k==1){
-			ArmPos((int)((y_val/12000.0)*100));
-		}
-		if(k == 1200){
-			k = 0;
-		}
+
+		float normalized_y = (y_val - 1000.0)/11000.0;
+		ArmPos(normalized_y * 100.0);
+
+//		k++;
+//		if(k==1){
+//			ArmPos((int)((y_val/12000.0)*100));
+//		}
+//		if(k == 1200){
+//			k = 0;
+//		}
 
 		// Receive flex sensor values
 		// Look for start character
-		ret = HAL_UART_Receive(&huart5, buf, 1, 1000);
-		if (ret != HAL_OK || buf[0] != '#') { continue; }
+//		ret = HAL_UART_Receive(&huart5, buf, 1, 1000);
+//		if (ret != HAL_OK || buf[0] != '#') { continue; }
 
-		ret = HAL_UART_Receive(&huart5, buf, 16, 1000);
-		if (ret != HAL_OK) { continue; }
-
-		memcpy(adc_str, buf, 16);
+		memcpy(adc_str, buf+24, 16);
 
 		// Range for flex sensor: 1400 (open) - 2000 (closed)
 		int adc_val = atoi(adc_str);
@@ -400,7 +402,7 @@ int main(void)
 
 		float normalized_adc = (adc_val - 1400.0) / 600.0;
 		LX16ABus_set_servo(1, normalized_adc * 240.0, 500);
-		HAL_Delay(500);
+		HAL_Delay(200);
 		for (int i = 0; i < 1; ++i) {}
 	#else
 		#error "Invalid mode"
