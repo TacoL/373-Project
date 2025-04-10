@@ -337,7 +337,7 @@ int main(void)
 //		}
 
 
-		ret = HAL_UART_Receive(&huart5, buf, 24, HAL_MAX_DELAY);
+		ret = HAL_UART_Receive(&huart5, buf, 24, 1000);
 		if (ret != HAL_OK) { continue; }
 
 		int i = 0;
@@ -364,9 +364,9 @@ int main(void)
 			++i;
 		}
 		z_str[j] = '\0';
-		HAL_UART_Transmit(&huart5, (const uint8_t *)x_str, 8, 0xFFFF);
-		HAL_UART_Transmit(&huart5, (const uint8_t *)y_str, 8, 0xFFFF);
-		HAL_UART_Transmit(&huart5, (const uint8_t *)z_str, 8, 0xFFFF);
+//		HAL_UART_Transmit(&huart5, (const uint8_t *)x_str, 8, 0xFFFF);
+//		HAL_UART_Transmit(&huart5, (const uint8_t *)y_str, 8, 0xFFFF);
+//		HAL_UART_Transmit(&huart5, (const uint8_t *)z_str, 8, 0xFFFF);
 		x_val = atoi(x_str);
 		y_val = atoi(y_str);
 		z_val = atoi(z_str);
@@ -380,6 +380,13 @@ int main(void)
 		if(k == 1200){
 			k = 0;
 		}
+
+		// Receive flex sensor values
+		ret = HAL_UART_Receive(&huart5, buf, 16, 1000);
+		if (ret != HAL_OK) { continue; }
+
+		memcpy(adc_str, buf, 16);
+		for (int i = 0; i < 1; ++i) {}
 	#else
 		#error "Invalid mode"
 	#endif

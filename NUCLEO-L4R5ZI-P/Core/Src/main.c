@@ -38,7 +38,7 @@
  * 1: Vehicle
  * 2: Arm (Testing)
  */
-#define MODE 2
+#define MODE 0
 
 // Add libraries as needed
 #if MODE == 0
@@ -194,7 +194,7 @@ int main(void)
   MX_TIM2_Init();
   /* USER CODE BEGIN 2 */
 
-if(MODE == 1 || MODE ==0) {
+#if MODE == 0 || MODE == 1
 	// init variables
 	HAL_StatusTypeDef ret;
 	uint8_t buf[50];
@@ -205,7 +205,7 @@ if(MODE == 1 || MODE ==0) {
 	char z_str[100];
 	char adc_str[100];
 
-}
+#endif
 
   #if MODE == 0
     // Enable accelerometer
