@@ -133,7 +133,7 @@ void ArmPos(int pos){
 	LX16ABus_set_servo(4, 180-((pos/100.0)*60), 120);
 	LX16ABus_set_servo(3, 180-((pos/100.0)*90), 120);
 	LX16ABus_set_servo(2, 180, 120);
-	LX16ABus_set_servo(6, 120, 120);
+	LX16ABus_set_servo(6, 30, 120);
 
 }
 

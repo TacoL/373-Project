@@ -187,8 +187,8 @@ int main(void)
 	LiquidCrystal_setCursor(0, 1);
 	LiquidCrystal_print("z:");
 	LiquidCrystal_print(z_send);
-	//LiquidCrystal_print(" | ");
-	//LiquidCrystal_print(adc_str);
+	LiquidCrystal_print(" | ");
+	LiquidCrystal_print(adc_str);
 
     /* USER CODE END WHILE */
 

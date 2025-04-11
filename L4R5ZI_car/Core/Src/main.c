@@ -118,7 +118,6 @@ int main(void)
 	char adc_str[100];
 
 	// pwm for speaker
-	HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_3);
 	TIM2->CCR3 = 500;
 
 	// pwm for motor
@@ -194,6 +193,18 @@ int main(void)
 	x_val = atoi(x_str);
 	y_val = atoi(y_str);
 	z_val = atoi(z_str);
+	// Receive flex sensor values
+	memcpy(adc_str, buf+24, 16);
+
+	// Range for flex sensor: 1400 (open) - 2000 (closed)
+	int adc_val = atoi(adc_str);
+//	adc_val = (adc_val < 1400) ? 1400 : (adc_val > 2000 ? 2000 : adc_val);
+	if(adc_val > 1250) {
+		glove_mode = 1;
+	}
+	else {
+		glove_mode = 0;
+	}
 
 	if (glove_mode == 0)
 	{
@@ -252,7 +263,7 @@ int main(void)
 		// TIME CHANNEL 4 = IN4
 
 		// send pwm
-		if (nMotMixL > 0)
+  		if (nMotMixL < 0)
 		{
 			TIM3->CCR3 = CCRL;
 			TIM3->CCR4 = 0;
@@ -262,7 +273,7 @@ int main(void)
 			TIM3->CCR3 = 0;
 			TIM3->CCR4 = CCRL;
 		}
-		if (nMotMixR > 0)
+		if (nMotMixR < 0)
 		{
 			TIM3->CCR1 = CCRR;
 			TIM3->CCR2 = 0;
@@ -274,7 +285,7 @@ int main(void)
 		}
 
 		// Speaker part
-		if((nMotMixR<0)&&(nMotMixL<0)&&(__HAL_TIM_GET_COUNTER(&htim4)>5000)){
+		if((nMotMixR>0)&&(nMotMixL>0)&&(__HAL_TIM_GET_COUNTER(&htim4)>5000)){
 			HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_3);
 		}
 		else{
@@ -295,7 +306,10 @@ int main(void)
 		 * 5: Shoulder pitch (?)
 		 * 6: Shoulder yaw (?)
 		 */
-
+		TIM3->CCR1 = 0;
+		TIM3->CCR2 = 0;
+		TIM3->CCR3 = 0;
+		TIM3->CCR4 = 0;
 		y_val = (abs(y_val) > 12000) ? (y_val < 0 ? -12000 : 12000) : y_val;
 		y_val = (abs(y_val) < 1000) ? 0 : y_val;
 		y_val = abs(y_val);
@@ -303,15 +317,9 @@ int main(void)
 		float normalized_y = (y_val - 1000.0)/11000.0;
 		ArmPos(normalized_y * 100.0);
 
-		// Receive flex sensor values
-		memcpy(adc_str, buf+24, 16);
 
-		// Range for flex sensor: 1400 (open) - 2000 (closed)
-		int adc_val = atoi(adc_str);
-		adc_val = (adc_val < 1400) ? 1400 : (adc_val > 2000 ? 2000 : adc_val);
-
-		float normalized_adc = (adc_val - 1400.0) / 600.0;
-		LX16ABus_set_servo(1, normalized_adc * 240.0, 500);
+//		float normalized_adc = (adc_val - 1400.0) / 600.0;
+//		LX16ABus_set_servo(1, normalized_adc * 240.0, 500);
 		HAL_Delay(200);
 		for (int i = 0; i < 1; ++i) {}
 	}
