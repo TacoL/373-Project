@@ -134,6 +134,8 @@ int main(void)
 //	LiquidCrystal_write(0b01000010);
 	char final_send[41];
 	final_send[0] = '#';
+	// TODO: Make second element the glove mode, depending on the thumb flex sensor.
+	// TODO: Flat hand = car mode, thumb bent = arm mode
 
 	// Retrieve accelerometer values
 	buf[0] = lower_x;
@@ -263,7 +265,7 @@ static void MX_ADC1_Init(void)
   hadc1.Init.Resolution = ADC_RESOLUTION_12B;
   hadc1.Init.DataAlign = ADC_DATAALIGN_RIGHT;
   hadc1.Init.ScanConvMode = ADC_SCAN_ENABLE;
-  hadc1.Init.EOCSelection = ADC_EOC_SINGLE_CONV;
+  hadc1.Init.EOCSelection = ADC_EOC_SEQ_CONV;
   hadc1.Init.LowPowerAutoWait = DISABLE;
   hadc1.Init.ContinuousConvMode = DISABLE;
   hadc1.Init.NbrOfConversion = 2;
