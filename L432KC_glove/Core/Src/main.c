@@ -129,6 +129,9 @@ int main(void)
   while (1)
   {
 	HAL_Delay(50);
+//	LiquidCrystal_clear();
+//	LiquidCrystal_write(0b10111101);
+//	LiquidCrystal_write(0b01000010);
 	char final_send[41];
 	final_send[0] = '#';
 
@@ -153,13 +156,15 @@ int main(void)
 	memcpy(final_send+17, z_send, 8);
 
 	// Retrieve ADC values
+	uint16_t ADC_ch6, ADC_ch11;
 	HAL_ADC_Start(&hadc1);
 	HAL_ADC_PollForConversion(&hadc1, 0xFFFFFFFF);
-	uint16_t ADC_raw = 0;
-	ADC_raw = HAL_ADC_GetValue(&hadc1);
+	ADC_ch6 = HAL_ADC_GetValue(&hadc1);
+	ADC_ch11 = HAL_ADC_GetValue(&hadc1);
+	HAL_ADC_Stop(&hadc1);
 
 	// Transmit ADC (flex sensor) values
-	sprintf(adc_str, "%d", ADC_raw);
+	sprintf(adc_str, "%d", ADC_ch11);
 	memcpy(final_send+25, adc_str, 16);
 	HAL_UART_Transmit(&huart2, (const uint8_t *)final_send, 41, 0xFFFF);
 
@@ -257,11 +262,11 @@ static void MX_ADC1_Init(void)
   hadc1.Init.ClockPrescaler = ADC_CLOCK_ASYNC_DIV1;
   hadc1.Init.Resolution = ADC_RESOLUTION_12B;
   hadc1.Init.DataAlign = ADC_DATAALIGN_RIGHT;
-  hadc1.Init.ScanConvMode = ADC_SCAN_DISABLE;
+  hadc1.Init.ScanConvMode = ADC_SCAN_ENABLE;
   hadc1.Init.EOCSelection = ADC_EOC_SINGLE_CONV;
   hadc1.Init.LowPowerAutoWait = DISABLE;
   hadc1.Init.ContinuousConvMode = DISABLE;
-  hadc1.Init.NbrOfConversion = 1;
+  hadc1.Init.NbrOfConversion = 2;
   hadc1.Init.DiscontinuousConvMode = DISABLE;
   hadc1.Init.ExternalTrigConv = ADC_SOFTWARE_START;
   hadc1.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_NONE;
@@ -275,12 +280,21 @@ static void MX_ADC1_Init(void)
 
   /** Configure Regular Channel
   */
-  sConfig.Channel = ADC_CHANNEL_11;
+  sConfig.Channel = ADC_CHANNEL_6;
   sConfig.Rank = ADC_REGULAR_RANK_1;
   sConfig.SamplingTime = ADC_SAMPLETIME_2CYCLES_5;
   sConfig.SingleDiff = ADC_SINGLE_ENDED;
   sConfig.OffsetNumber = ADC_OFFSET_NONE;
   sConfig.Offset = 0;
+  if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+
+  /** Configure Regular Channel
+  */
+  sConfig.Channel = ADC_CHANNEL_11;
+  sConfig.Rank = ADC_REGULAR_RANK_2;
   if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
   {
     Error_Handler();
