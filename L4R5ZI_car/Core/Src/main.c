@@ -58,6 +58,7 @@
 /* Private variables ---------------------------------------------------------*/
 TIM_HandleTypeDef htim2;
 TIM_HandleTypeDef htim3;
+TIM_HandleTypeDef htim4;
 
 UART_HandleTypeDef huart5;
 UART_HandleTypeDef huart2;
@@ -73,6 +74,7 @@ static void MX_TIM3_Init(void);
 static void MX_UART5_Init(void);
 static void MX_TIM2_Init(void);
 static void MX_USART2_UART_Init(void);
+static void MX_TIM4_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -158,6 +160,7 @@ int main(void)
   MX_UART5_Init();
   MX_TIM2_Init();
   MX_USART2_UART_Init();
+  MX_TIM4_Init();
   /* USER CODE BEGIN 2 */
 
 
@@ -174,7 +177,7 @@ int main(void)
 
 	// pwm for speaker
 	HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_3);
-
+	TIM2->CCR3 = 500;
 	// pwm for motor
 	HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_3);
 	TIM3->PSC = 7;
@@ -187,6 +190,9 @@ int main(void)
 	TIM3->CCR2 = 0;
 	TIM3->CCR3 = 0;
 	TIM3->CCR4 = 0;
+
+	//Timer for beep
+	HAL_TIM_PWM_Start(&htim4, TIM_CHANNEL_4);
 
 	// Enable arm
 	// Note: Baud Rate = 115200
@@ -317,6 +323,12 @@ int main(void)
 			TIM3->CCR1 = 0;
 			TIM3->CCR2 = CCRR;
 		}
+		if((nMotMixR<0)&&(nMotMixL<0)&&(__HAL_TIM_GET_COUNTER(&htim4)>5000)){
+			HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_3);
+		}
+		else{
+			HAL_TIM_PWM_Stop(&htim2, TIM_CHANNEL_3);
+		}
 	#elif MODE == 2
 		/*
 		 * ARM IDs:
@@ -381,18 +393,18 @@ int main(void)
 		float normalized_y = (y_val - 1000.0)/11000.0;
 		ArmPos(normalized_y * 100.0);
 
-//		k++;
-//		if(k==1){
-//			ArmPos((int)((y_val/12000.0)*100));
-//		}
-//		if(k == 1200){
-//			k = 0;
-//		}
+		k++;
+		if(k==1){
+			ArmPos((int)((y_val/12000.0)*100));
+		}
+		if(k == 1200){
+			k = 0;
+		}
 
 		// Receive flex sensor values
 		// Look for start character
-//		ret = HAL_UART_Receive(&huart5, buf, 1, 1000);
-//		if (ret != HAL_OK || buf[0] != '#') { continue; }
+		ret = HAL_UART_Receive(&huart5, buf, 1, 1000);
+		if (ret != HAL_OK || buf[0] != '#') { continue; }
 
 		memcpy(adc_str, buf+24, 16);
 
@@ -404,6 +416,7 @@ int main(void)
 		LX16ABus_set_servo(1, normalized_adc * 240.0, 500);
 		HAL_Delay(200);
 		for (int i = 0; i < 1; ++i) {}
+
 	#else
 		#error "Invalid mode"
 	#endif
@@ -575,6 +588,64 @@ static void MX_TIM3_Init(void)
 
   /* USER CODE END TIM3_Init 2 */
   HAL_TIM_MspPostInit(&htim3);
+
+}
+
+/**
+  * @brief TIM4 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_TIM4_Init(void)
+{
+
+  /* USER CODE BEGIN TIM4_Init 0 */
+
+  /* USER CODE END TIM4_Init 0 */
+
+  TIM_ClockConfigTypeDef sClockSourceConfig = {0};
+  TIM_MasterConfigTypeDef sMasterConfig = {0};
+  TIM_OC_InitTypeDef sConfigOC = {0};
+
+  /* USER CODE BEGIN TIM4_Init 1 */
+
+  /* USER CODE END TIM4_Init 1 */
+  htim4.Instance = TIM4;
+  htim4.Init.Prescaler = 399;
+  htim4.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim4.Init.Period = 10000;
+  htim4.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  htim4.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  if (HAL_TIM_Base_Init(&htim4) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
+  if (HAL_TIM_ConfigClockSource(&htim4, &sClockSourceConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  if (HAL_TIM_PWM_Init(&htim4) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+  if (HAL_TIMEx_MasterConfigSynchronization(&htim4, &sMasterConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sConfigOC.OCMode = TIM_OCMODE_PWM1;
+  sConfigOC.Pulse = 5000;
+  sConfigOC.OCPolarity = TIM_OCPOLARITY_LOW;
+  sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
+  if (HAL_TIM_PWM_ConfigChannel(&htim4, &sConfigOC, TIM_CHANNEL_4) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN TIM4_Init 2 */
+
+  /* USER CODE END TIM4_Init 2 */
 
 }
 
