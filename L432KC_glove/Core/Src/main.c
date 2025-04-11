@@ -35,6 +35,10 @@
 #define CTRL_REG1_A 0x20
 #define lower_x (0x28 | 0x80)
 #define ACCELEROMETER_UART_ID 0
+
+#define ADC_BUFFER_LENGTH 2
+uint16_t adc_buffer[ADC_BUFFER_LENGTH];
+
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -44,6 +48,7 @@
 
 /* Private variables ---------------------------------------------------------*/
 ADC_HandleTypeDef hadc1;
+DMA_HandleTypeDef hdma_adc1;
 
 I2C_HandleTypeDef hi2c3;
 
@@ -56,6 +61,7 @@ UART_HandleTypeDef huart2;
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
+static void MX_DMA_Init(void);
 static void MX_I2C3_Init(void);
 static void MX_USART2_UART_Init(void);
 static void MX_ADC1_Init(void);
@@ -97,6 +103,7 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
+  MX_DMA_Init();
   MX_I2C3_Init();
   MX_USART2_UART_Init();
   MX_ADC1_Init();
@@ -126,6 +133,7 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+  HAL_ADC_Start_DMA(&hadc1, (uint32_t*)adc_buffer, ADC_BUFFER_LENGTH);
   while (1)
   {
 	HAL_Delay(50);
@@ -158,12 +166,16 @@ int main(void)
 	memcpy(final_send+17, z_send, 8);
 
 	// Retrieve ADC values
-	uint16_t ADC_ch6, ADC_ch11;
-	HAL_ADC_Start(&hadc1);
-	HAL_ADC_PollForConversion(&hadc1, 0xFFFFFFFF);
-	ADC_ch6 = HAL_ADC_GetValue(&hadc1);
-	ADC_ch11 = HAL_ADC_GetValue(&hadc1);
-	HAL_ADC_Stop(&hadc1);
+
+	// Retrieve ADC values
+//	uint16_t ADC_ch6, ADC_ch11;
+//	HAL_ADC_Start(&hadc1);
+//	HAL_ADC_PollForConversion(&hadc1, 0xFFFFFFFF);
+//	ADC_ch6 = HAL_ADC_GetValue(&hadc1);
+//	ADC_ch11 = HAL_ADC_GetValue(&hadc1);
+//	HAL_ADC_Stop(&hadc1);
+	uint16_t ADC_ch6 = adc_buffer[0];  // Channel 6 (Rank 1)
+	uint16_t ADC_ch11 = adc_buffer[1]; // Channel 11 (Rank 2)
 
 	// Transmit ADC (flex sensor) values
 	sprintf(adc_str, "%d", ADC_ch11);
@@ -261,18 +273,18 @@ static void MX_ADC1_Init(void)
   /** Common config
   */
   hadc1.Instance = ADC1;
-  hadc1.Init.ClockPrescaler = ADC_CLOCK_ASYNC_DIV1;
+  hadc1.Init.ClockPrescaler = ADC_CLOCK_ASYNC_DIV32;
   hadc1.Init.Resolution = ADC_RESOLUTION_12B;
   hadc1.Init.DataAlign = ADC_DATAALIGN_RIGHT;
   hadc1.Init.ScanConvMode = ADC_SCAN_ENABLE;
   hadc1.Init.EOCSelection = ADC_EOC_SEQ_CONV;
   hadc1.Init.LowPowerAutoWait = DISABLE;
-  hadc1.Init.ContinuousConvMode = DISABLE;
+  hadc1.Init.ContinuousConvMode = ENABLE;
   hadc1.Init.NbrOfConversion = 2;
   hadc1.Init.DiscontinuousConvMode = DISABLE;
   hadc1.Init.ExternalTrigConv = ADC_SOFTWARE_START;
   hadc1.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_NONE;
-  hadc1.Init.DMAContinuousRequests = DISABLE;
+  hadc1.Init.DMAContinuousRequests = ENABLE;
   hadc1.Init.Overrun = ADC_OVR_DATA_PRESERVED;
   hadc1.Init.OversamplingMode = DISABLE;
   if (HAL_ADC_Init(&hadc1) != HAL_OK)
@@ -387,6 +399,22 @@ static void MX_USART2_UART_Init(void)
   /* USER CODE BEGIN USART2_Init 2 */
 
   /* USER CODE END USART2_Init 2 */
+
+}
+
+/**
+  * Enable DMA controller clock
+  */
+static void MX_DMA_Init(void)
+{
+
+  /* DMA controller clock enable */
+  __HAL_RCC_DMA1_CLK_ENABLE();
+
+  /* DMA interrupt init */
+  /* DMA1_Channel1_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(DMA1_Channel1_IRQn, 5, 0);
+  HAL_NVIC_EnableIRQ(DMA1_Channel1_IRQn);
 
 }
 
