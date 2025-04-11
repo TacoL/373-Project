@@ -168,17 +168,12 @@ int main(void)
 	// Retrieve ADC values
 
 	// Retrieve ADC values
-//	uint16_t ADC_ch6, ADC_ch11;
-//	HAL_ADC_Start(&hadc1);
-//	HAL_ADC_PollForConversion(&hadc1, 0xFFFFFFFF);
-//	ADC_ch6 = HAL_ADC_GetValue(&hadc1);
-//	ADC_ch11 = HAL_ADC_GetValue(&hadc1);
-//	HAL_ADC_Stop(&hadc1);
+	// TODO: Right now only channel 6 works. Channel 11 has hardware issue probably.
 	uint16_t ADC_ch6 = adc_buffer[0];  // Channel 6 (Rank 1)
 	uint16_t ADC_ch11 = adc_buffer[1]; // Channel 11 (Rank 2)
 
 	// Transmit ADC (flex sensor) values
-	sprintf(adc_str, "%d", ADC_ch11);
+	sprintf(adc_str, "%d", ADC_ch6);
 	memcpy(final_send+25, adc_str, 16);
 	HAL_UART_Transmit(&huart2, (const uint8_t *)final_send, 41, 0xFFFF);
 
