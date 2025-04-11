@@ -21,7 +21,10 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include <stdlib.h>
+#include <math.h>
+#include <string.h>
+#include "ArmDriver.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -31,22 +34,6 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-
-/*
- * MODES:
- * 0: Glove
- * 1: Vehicle
- * 2: Arm (Testing)
- */
-#define MODE 2
-
-// Add libraries as needed
-	#include <stdlib.h>
-	#include <math.h>
-	#include <string.h>
-
-	#include "ArmDriver.h"
-
 
 /* USER CODE END PD */
 
@@ -82,49 +69,6 @@ static void MX_TIM4_Init(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 
-//#define MESSAGE_ID_POS 30
-//#define NUM_PACKETS_POS 26
-//#define CURRENT_PACKET_POS 22
-//#define DATA_POS 6
-//
-//#define MESSAGE_ID_MASK (0b11 << MESSAGE_ID_POS)
-//#define NUM_PACKETS_MASK (0xF << NUM_PACKETS_POS)
-//#define CURRENT_PACKET_MASK (0xF << CURRENT_PACKET_POS)
-//#define DATA_MASK (0xFFFF << DATA_POS)
-
-
-// package data so that UART can receive consistent packages
-// Data will be packaged into a 32-bit packets where:
-// Bits 31-30: Message ID
-// Bits 29-26: Total Number of Packets for this transmission
-// Bits 25-22: Current packet number
-// Bits 21-06: Data (16 bits = 2 chars)
-// Bits 05-00: Reserved for idk
-//uint32_t* packageData(int messageID, char* dataToPackage)
-//{
-//	// Get size of data
-//	int size = 0;
-//	char* dummy = dataToPackage;
-//	while (dummy != NULL)
-//	{
-//		size++;
-//		dummy++;
-//	}
-//
-//	// Calculate number of packets (2 chars per packet)
-//	int numPackets = ceil(size / 2);
-//	if (numPackets > 16) { return NULL; }
-//
-//	// Package Data
-//	uint32_t* packets = (uint32_t*)malloc(numPackets * sizeof(uint32_t));
-//	for (int packetNum = 0; packetNum < numPackets; ++packetNum)
-//	{
-//		uint32_t toPackage = (messageID << MESSAGE_ID_POS) | (numPackets << NUM_PACKETS_POS) | (packetNum << CURRENT_PACKET_POS) | (dataToPackage[2*packetNum + 1] << (DATA_POS+8)) | (dataToPackage[2*packetNum] << DATA_POS);
-//		packets[packetNum] = toPackage;
-//	}
-//
-//	return packets;
-//}
 /* USER CODE END 0 */
 
 /**
@@ -163,7 +107,6 @@ int main(void)
   MX_TIM4_Init();
   /* USER CODE BEGIN 2 */
 
-
 	// init variables
 	HAL_StatusTypeDef ret;
 	uint8_t buf[50];
@@ -174,10 +117,10 @@ int main(void)
 	char z_str[100];
 	char adc_str[100];
 
-
 	// pwm for speaker
 	HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_3);
 	TIM2->CCR3 = 500;
+
 	// pwm for motor
 	HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_3);
 	TIM3->PSC = 7;
@@ -200,53 +143,64 @@ int main(void)
 
 	int k = 0;
 
+	/*
+	 * Glove modes
+	 * 0: Control car
+	 * 1: Control arm
+	 */
+	int glove_mode = 0;
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+	// Look for start character
+	ret = HAL_UART_Receive(&huart5, buf, 1, 1000);
+	if (ret != HAL_OK || buf[0] != '#') { continue; }
 
-	#if MODE == 1
-		ret = HAL_UART_Receive(&huart5, buf, 24, HAL_MAX_DELAY);
-		if (ret != HAL_OK) { continue; }
+	// TODO: Send glove mode based on flex sensor data, set glove mode variable to glove mode
 
-		int i = 0;
-		int j = 0;
-		while(buf[i] != '\0') {
-			x_str[j] = buf[i];
-			++j;
-			++i;
-		}
-		x_str[j] = '\0';
-		j = 0;
-		i = 8;
-		while(buf[i] != '\0') {
-			y_str[j] = buf[i];
-			++j;
-			++i;
-		}
-		y_str[j] = '\0';
-		j = 0;
-		i = 16;
-		while(buf[i] != '\0') {
-			z_str[j] = buf[i];
-			++j;
-			++i;
-		}
-		z_str[j] = '\0';
+	ret = HAL_UART_Receive(&huart5, buf, 40, 1000);
+	if (ret != HAL_OK) { continue; }
 
-		// Receive flex sensor values
-		ret = HAL_UART_Receive(&huart5, buf, 16, HAL_MAX_DELAY);
-		if (ret != HAL_OK) { continue; }
+	// Parse accelerometer values
+	int i = 0;
+	int j = 0;
+	while(buf[i] != '\0') {
+		x_str[j] = buf[i];
+		++j;
+		++i;
+	}
+	x_str[j] = '\0';
+	j = 0;
+	i = 8;
+	while(buf[i] != '\0') {
+		y_str[j] = buf[i];
+		++j;
+		++i;
+	}
+	y_str[j] = '\0';
+	j = 0;
+	i = 16;
+	while(buf[i] != '\0') {
+		z_str[j] = buf[i];
+		++j;
+		++i;
+	}
+	z_str[j] = '\0';
 
-		memcpy(adc_str, buf, 16);
+	x_val = atoi(x_str);
+	y_val = atoi(y_str);
+	z_val = atoi(z_str);
+
+	if (glove_mode == 0)
+	{
+		// Control car with accelerometer
 
 		// Convert accelerometer values to pwm
 		// Note: range: 500-12500
-		x_val = atoi(x_str);
-		y_val = atoi(y_str);
-		z_val = atoi(z_str);
 
 		x_val = (abs(x_val) > 12500) ? (x_val < 0 ? -12000 : 12000) : x_val;
 		x_val = (abs(x_val) < 1000) ? 0 : x_val;
@@ -291,12 +245,7 @@ int main(void)
 		nMotMixR = (1.0-fPivScale)*nMotPremixR + fPivScale*(-nPivSpeed);
 		int CCRL = abs((int)((nMotMixL / 1023) * 4000));
 		int CCRR = abs((int)((nMotMixR / 1023) * 4000));
-//			char x_x[10];
-//			char y_y[10];
-//			sprintf(x_x, "%.2f", x_float);
-//			sprintf(y_y, "%.2f", y_float);
-//			HAL_UART_Transmit(&huart5, x_x, 8, 0xFFFF);
-//			HAL_UART_Transmit(&huart5, y_y, 8, 0xFFFF);
+
 		// TIM3 CHANNEL 1 = IN1
 		// TIM3 CHANNEL 2 = IN2
 		// TIM3 CHANNEL 3 = IN3
@@ -323,13 +272,20 @@ int main(void)
 			TIM3->CCR1 = 0;
 			TIM3->CCR2 = CCRR;
 		}
+
+		// Speaker part
 		if((nMotMixR<0)&&(nMotMixL<0)&&(__HAL_TIM_GET_COUNTER(&htim4)>5000)){
 			HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_3);
 		}
 		else{
 			HAL_TIM_PWM_Stop(&htim2, TIM_CHANNEL_3);
 		}
-	#elif MODE == 2
+	}
+	else if (glove_mode == 1)
+	{
+		// Control arm with accelerometer
+		// TODO: Change to control arm with ToF sensor + flex sensor
+
 		/*
 		 * ARM IDs:
 		 * 1: Open/Close Hand
@@ -339,52 +295,6 @@ int main(void)
 		 * 5: Shoulder pitch (?)
 		 * 6: Shoulder yaw (?)
 		 */
-/*		for(int i = 0; i < 100; i+=5) {
-			ArmPos(i);
-			HAL_Delay(120);
-		}
-		for(int i = 100; i > 0; i-=5) {
-			ArmPos(i);
-			HAL_Delay(120);
-		}*/
-
-		// Look for start character
-		ret = HAL_UART_Receive(&huart5, buf, 1, 1000);
-		if (ret != HAL_OK || buf[0] != '#') { continue; }
-
-		ret = HAL_UART_Receive(&huart5, buf, 40, 1000);
-		if (ret != HAL_OK) { continue; }
-
-		int i = 0;
-		int j = 0;
-		while(buf[i] != '\0') {
-			x_str[j] = buf[i];
-			++j;
-			++i;
-		}
-		x_str[j] = '\0';
-		j = 0;
-		i = 8;
-		while(buf[i] != '\0') {
-			y_str[j] = buf[i];
-			++j;
-			++i;
-		}
-		y_str[j] = '\0';
-		j = 0;
-		i = 16;
-		while(buf[i] != '\0') {
-			z_str[j] = buf[i];
-			++j;
-			++i;
-		}
-		z_str[j] = '\0';
-//		HAL_UART_Transmit(&huart5, (const uint8_t *)x_str, 8, 0xFFFF);
-//		HAL_UART_Transmit(&huart5, (const uint8_t *)y_str, 8, 0xFFFF);
-//		HAL_UART_Transmit(&huart5, (const uint8_t *)z_str, 8, 0xFFFF);
-		x_val = atoi(x_str);
-		y_val = atoi(y_str);
-		z_val = atoi(z_str);
 
 		y_val = (abs(y_val) > 12000) ? (y_val < 0 ? -12000 : 12000) : y_val;
 		y_val = (abs(y_val) < 1000) ? 0 : y_val;
@@ -393,19 +303,7 @@ int main(void)
 		float normalized_y = (y_val - 1000.0)/11000.0;
 		ArmPos(normalized_y * 100.0);
 
-		k++;
-		if(k==1){
-			ArmPos((int)((y_val/12000.0)*100));
-		}
-		if(k == 1200){
-			k = 0;
-		}
-
 		// Receive flex sensor values
-		// Look for start character
-		ret = HAL_UART_Receive(&huart5, buf, 1, 1000);
-		if (ret != HAL_OK || buf[0] != '#') { continue; }
-
 		memcpy(adc_str, buf+24, 16);
 
 		// Range for flex sensor: 1400 (open) - 2000 (closed)
@@ -416,10 +314,7 @@ int main(void)
 		LX16ABus_set_servo(1, normalized_adc * 240.0, 500);
 		HAL_Delay(200);
 		for (int i = 0; i < 1; ++i) {}
-
-	#else
-		#error "Invalid mode"
-	#endif
+	}
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */

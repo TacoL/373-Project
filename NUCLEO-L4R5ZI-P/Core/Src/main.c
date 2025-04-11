@@ -196,27 +196,27 @@ int main(void)
 
 #if MODE == 0 || MODE == 1
 	// init variables
-	HAL_StatusTypeDef ret;
-	uint8_t buf[50];
-
-	int16_t x_val, y_val, z_val = 0;
-	char x_str[100];
-	char y_str[100];
-	char z_str[100];
-	char adc_str[100];
+//	HAL_StatusTypeDef ret;
+//	uint8_t buf[50];
+//
+//	int16_t x_val, y_val, z_val = 0;
+//	char x_str[100];
+//	char y_str[100];
+//	char z_str[100];
+//	char adc_str[100];
 
 #endif
 
   #if MODE == 0
-    // Enable accelerometer
-    buf[0] = CTRL_REG1_A;
-    buf[1] = 0b10010111;
-
-    ret = HAL_I2C_Master_Transmit(&hi2c1, accel_addr, buf, 2, HAL_MAX_DELAY);
-    if (ret != HAL_OK) { return 1; } // return with error code 1
-
-    // Enable screen
-    LiquidCrystal_init(0);
+//    // Enable accelerometer
+//    buf[0] = CTRL_REG1_A;
+//    buf[1] = 0b10010111;
+//
+//    ret = HAL_I2C_Master_Transmit(&hi2c1, accel_addr, buf, 2, HAL_MAX_DELAY);
+//    if (ret != HAL_OK) { return 1; } // return with error code 1
+//
+//    // Enable screen
+//    LiquidCrystal_init(0);
   #elif MODE == 1
 	HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_3);
 	TIM3->PSC = 7;
@@ -245,16 +245,16 @@ int main(void)
 	#if MODE == 0
 	  	HAL_Delay(50);
 
-		// Retrieve accelerometer values
-		buf[0] = lower_x;
-		ret = HAL_I2C_Master_Transmit(&hi2c1, accel_addr, buf, 1, HAL_MAX_DELAY);
-		if (ret != HAL_OK) { continue; }
-		ret = HAL_I2C_Master_Receive(&hi2c1, accel_addr, buf, 6, HAL_MAX_DELAY);
-		if (ret != HAL_OK) { continue; }
-
-		x_val = (buf[1] << 8) | buf[0];
-		y_val = (buf[3] << 8) | buf[2];
-		z_val = (buf[5] << 8) | buf[4];
+//		// Retrieve accelerometer values
+//		buf[0] = lower_x;
+//		ret = HAL_I2C_Master_Transmit(&hi2c1, accel_addr, buf, 1, HAL_MAX_DELAY);
+//		if (ret != HAL_OK) { continue; }
+//		ret = HAL_I2C_Master_Receive(&hi2c1, accel_addr, buf, 6, HAL_MAX_DELAY);
+//		if (ret != HAL_OK) { continue; }
+//
+//		x_val = (buf[1] << 8) | buf[0];
+//		y_val = (buf[3] << 8) | buf[2];
+//		z_val = (buf[5] << 8) | buf[4];
 
 		// Convert to string
 //		sprintf(x_str, "%.1f", (float)x_val / 16000.0);
@@ -285,19 +285,19 @@ int main(void)
 //			HAL_UART_Transmit(&huart5, x_str_packaged, (x_str_packaged & NUM_PACKETS_MASK) >> NUM_PACKETS_POS, 0xFFFF);
 //			HAL_UART_Transmit(&huart5, y_str_packaged, (y_str_packaged & NUM_PACKETS_MASK) >> NUM_PACKETS_POS, 0xFFFF);
 //			HAL_UART_Transmit(&huart5, z_str_packaged, (z_str_packaged & NUM_PACKETS_MASK) >> NUM_PACKETS_POS, 0xFFFF);
-		char x_send[8];
-		char y_send[8];
-		char z_send[8];
-
-		char final_send[41];
-		final_send[0] = '#';
-		sprintf(x_send, "%d", x_val);
-		sprintf(y_send, "%d", y_val);
-		sprintf(z_send, "%d", z_val);
-
-		memcpy(final_send+1, x_send, 8);
-		memcpy(final_send+9, y_send, 8);
-		memcpy(final_send+17, z_send, 8);
+//		char x_send[8];
+//		char y_send[8];
+//		char z_send[8];
+//
+//		char final_send[41];
+//		final_send[0] = '#';
+//		sprintf(x_send, "%d", x_val);
+//		sprintf(y_send, "%d", y_val);
+//		sprintf(z_send, "%d", z_val);
+//
+//		memcpy(final_send+1, x_send, 8);
+//		memcpy(final_send+9, y_send, 8);
+//		memcpy(final_send+17, z_send, 8);
 
 		// Transmit accelerometer values
 		//HAL_UART_Transmit(&huart5, (const uint8_t *)acc_send, 25, 0xFFFF);
@@ -310,26 +310,26 @@ int main(void)
 		HAL_ADC_PollForConversion(&hadc1, 0xFFFFFFFF);
 		uint16_t ADC_raw = 0;
 		ADC_raw = HAL_ADC_GetValue(&hadc1);
-
+		uint16_t dummy = 0;
 
 		// Transmit ADC (flex sensor) values
 		//char flex_send[17];
 		//flex_send[0] = '#';
 
-		sprintf(adc_str, "%d", ADC_raw);
-		memcpy(final_send+25, adc_str, 16);
-		HAL_UART_Transmit(&huart5, (const uint8_t *)final_send, 41, 0xFFFF);
-
-		//Print to LCD Screen
-		LiquidCrystal_clear();
-		LiquidCrystal_print("x:");
-		LiquidCrystal_print(x_send);
-		//LiquidCrystal_print(" | ");
-		LiquidCrystal_print("y:");
-		LiquidCrystal_print(y_send);
-		LiquidCrystal_setCursor(0, 1);
-		LiquidCrystal_print("z:");
-		LiquidCrystal_print(z_send);
+//		sprintf(adc_str, "%d", ADC_raw);
+//		memcpy(final_send+25, adc_str, 16);
+//		HAL_UART_Transmit(&huart5, (const uint8_t *)final_send, 41, 0xFFFF);
+//
+//		//Print to LCD Screen
+//		LiquidCrystal_clear();
+//		LiquidCrystal_print("x:");
+//		LiquidCrystal_print(x_send);
+//		//LiquidCrystal_print(" | ");
+//		LiquidCrystal_print("y:");
+//		LiquidCrystal_print(y_send);
+//		LiquidCrystal_setCursor(0, 1);
+//		LiquidCrystal_print("z:");
+//		LiquidCrystal_print(z_send);
 		//LiquidCrystal_print(" | ");
 		//LiquidCrystal_print(adc_str);
 	#elif MODE == 1
