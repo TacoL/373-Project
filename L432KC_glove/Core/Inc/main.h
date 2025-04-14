@@ -57,6 +57,12 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
+#define Mode_Pin GPIO_PIN_0
+#define Mode_GPIO_Port GPIOA
+#define Mode_EXTI_IRQn EXTI0_IRQn
+#define Calibrate_Pin GPIO_PIN_4
+#define Calibrate_GPIO_Port GPIOA
+#define Calibrate_EXTI_IRQn EXTI4_IRQn
 #define LCD_D4_Pin GPIO_PIN_0
 #define LCD_D4_GPIO_Port GPIOB
 #define LCD_D1_Pin GPIO_PIN_1
