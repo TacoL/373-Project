@@ -2,12 +2,12 @@
 Glove Controls (IMU, Flex Sensors, Display) are in Nucleo folder
 
 ## Links to Nucleo Pinouts:
-[L4R5ZI](https://os.mbed.com/platforms/NUCLEO-L4R5ZI/) \
-[L432KC](https://os.mbed.com/platforms/ST-Nucleo-L432KC/) \
-[F401RE](https://os.mbed.com/platforms/ST-Nucleo-F401RE/)
+Car: [L4R5ZI](https://os.mbed.com/platforms/NUCLEO-L4R5ZI/) \
+Glove: [L432KC](https://os.mbed.com/platforms/ST-Nucleo-L432KC/)
 
 ## Component Information
-**Flex Sensor:**
+### Flex Sensor
+- **Note: Different sensors may have different resistances.**
 - When attached to a finger, translucent white touching skin, solder connects pointing to palm
 - Finger Straight = 90-115kohm
 - Finger Bent = 60-80kohm
