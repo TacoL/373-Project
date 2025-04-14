@@ -147,7 +147,7 @@ int main(void)
 	 * 0: Control car
 	 * 1: Control arm
 	 */
-	int glove_mode = 0;
+	uint8_t glove_mode = 0;
 
   /* USER CODE END 2 */
 
@@ -159,7 +159,10 @@ int main(void)
 	ret = HAL_UART_Receive(&huart5, buf, 1, 1000);
 	if (ret != HAL_OK || buf[0] != '#') { continue; }
 
-	// TODO: Send glove mode based on flex sensor data, set glove mode variable to glove mode
+	// Set glove mode
+	ret = HAL_UART_Receive(&huart5, buf, 1, 1000);
+	if (ret != HAL_OK) { continue; }
+	glove_mode = buf[0];
 
 	ret = HAL_UART_Receive(&huart5, buf, 40, 1000);
 	if (ret != HAL_OK) { continue; }
@@ -193,18 +196,6 @@ int main(void)
 	x_val = atoi(x_str);
 	y_val = atoi(y_str);
 	z_val = atoi(z_str);
-	// Receive flex sensor values
-	memcpy(adc_str, buf+24, 16);
-
-	// Range for flex sensor: 1400 (open) - 2000 (closed)
-	int adc_val = atoi(adc_str);
-//	adc_val = (adc_val < 1400) ? 1400 : (adc_val > 2000 ? 2000 : adc_val);
-	if(adc_val > 1250) {
-		glove_mode = 1;
-	}
-	else {
-		glove_mode = 0;
-	}
 
 	if (glove_mode == 0)
 	{
@@ -295,7 +286,7 @@ int main(void)
 	else if (glove_mode == 1)
 	{
 		// Control arm with accelerometer
-		// TODO: Change to control arm with ToF sensor + flex sensor
+		// TODO: Change to control arm with ToF sensor
 
 		/*
 		 * ARM IDs:
@@ -317,11 +308,16 @@ int main(void)
 		float normalized_y = (y_val - 1000.0)/11000.0;
 		ArmPos(normalized_y * 100.0);
 
+		// Receive flex sensor values
+		memcpy(adc_str, buf+24, 16);
 
-//		float normalized_adc = (adc_val - 1400.0) / 600.0;
-//		LX16ABus_set_servo(1, normalized_adc * 240.0, 500);
-		HAL_Delay(200);
-		for (int i = 0; i < 1; ++i) {}
+		// Range for flex sensor: 1400 (open) - 2000 (closed) TODO: Might have to change this range for opening/closing hand
+		int adc_val = atoi(adc_str);
+		adc_val = (adc_val < 1400) ? 1400 : (adc_val > 2000 ? 2000 : adc_val);
+
+		float normalized_adc = (adc_val - 1400.0) / 600.0;
+		LX16ABus_set_servo(1, normalized_adc * 240.0, 500);
+		HAL_Delay(200); // TODO: Do we even need this delay?
 	}
     /* USER CODE END WHILE */
 

@@ -36,8 +36,19 @@
 #define lower_x (0x28 | 0x80)
 #define ACCELEROMETER_UART_ID 0
 
+int16_t accel_xoffset = 0;
+int16_t accel_yoffset = 0;
+int16_t accel_zoffset = 0;
+
 #define ADC_BUFFER_LENGTH 2
 uint16_t adc_buffer[ADC_BUFFER_LENGTH];
+
+/*
+ * Glove modes
+ * 0: Control car
+ * 1: Control arm
+ */
+uint8_t glove_mode = 0;
 
 /* USER CODE END PD */
 
@@ -71,7 +82,37 @@ static void MX_ADC1_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
+{
+	if (GPIO_Pin == Mode_Pin)
+	{
+		glove_mode = !glove_mode;
+	}
+	else if (GPIO_Pin == Calibrate_Pin)
+	{
+		// Calibrate accelerometer
+		int16_t x_val, y_val, z_val = 0;
 
+		// Retrieve accelerometer values
+		buf[0] = lower_x;
+		ret = HAL_I2C_Master_Transmit(&hi2c3, accel_addr, buf, 1, HAL_MAX_DELAY);
+		if (ret != HAL_OK) { return; }
+		ret = HAL_I2C_Master_Receive(&hi2c3, accel_addr, buf, 6, HAL_MAX_DELAY);
+		if (ret != HAL_OK) { return; }
+
+		x_val = (buf[1] << 8) | buf[0];
+		y_val = (buf[3] << 8) | buf[2];
+		z_val = (buf[5] << 8) | buf[4];
+
+		accel_xoffset = x_val;
+		accel_yoffset = y_val;
+		accel_zoffset = z_val;
+
+		// Calibrate TOF Sensor
+
+		// TODO: Should we calibrate the flex sensor value too?
+	}
+}
 /* USER CODE END 0 */
 
 /**
@@ -136,14 +177,11 @@ int main(void)
   HAL_ADC_Start_DMA(&hadc1, (uint32_t*)adc_buffer, ADC_BUFFER_LENGTH);
   while (1)
   {
-	HAL_Delay(50);
-//	LiquidCrystal_clear();
-//	LiquidCrystal_write(0b10111101);
-//	LiquidCrystal_write(0b01000010);
-	char final_send[41];
+	HAL_Delay(50); // TODO: Do we need this delay?
+
+	char final_send[42];
 	final_send[0] = '#';
-	// TODO: Make second element the glove mode, depending on the thumb flex sensor.
-	// TODO: Flat hand = car mode, thumb bent = arm mode
+	final_send[1] = glove_mode;
 
 	// Retrieve accelerometer values
 	buf[0] = lower_x;
@@ -156,16 +194,19 @@ int main(void)
 	y_val = (buf[3] << 8) | buf[2];
 	z_val = (buf[5] << 8) | buf[4];
 
+	// Apply calibrated offset
+	x_val -= accel_xoffset;
+	y_val -= accel_yoffset;
+	z_val -= accel_zoffset;
+
 	sprintf(x_send, "%d", x_val);
 	sprintf(y_send, "%d", y_val);
 	sprintf(z_send, "%d", z_val);
 
 	// Package accelerometer values
-	memcpy(final_send+1, x_send, 8);
-	memcpy(final_send+9, y_send, 8);
-	memcpy(final_send+17, z_send, 8);
-
-	// Retrieve ADC values
+	memcpy(final_send+2, x_send, 8);
+	memcpy(final_send+10, y_send, 8);
+	memcpy(final_send+18, z_send, 8);
 
 	// Retrieve ADC values
 	// TODO: Right now only channel 6 works. Channel 11 has hardware issue probably.
@@ -174,8 +215,12 @@ int main(void)
 
 	// Transmit ADC (flex sensor) values
 	sprintf(adc_str, "%d", ADC_ch6);
-	memcpy(final_send+25, adc_str, 16);
-	HAL_UART_Transmit(&huart2, (const uint8_t *)final_send, 41, 0xFFFF);
+	memcpy(final_send+26, adc_str, 16);
+
+	// TODO: Send TOF values
+
+	// Send data
+	HAL_UART_Transmit(&huart2, (const uint8_t *)final_send, 42, 0xFFFF);
 
 	//Print to LCD Screen
 	LiquidCrystal_clear();
