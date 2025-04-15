@@ -117,7 +117,7 @@ int main(void)
 	char z_str[100];
 	char adc_str[8];
 
-	char tofStr[8];
+	char tof_str[8];
 
 	// pwm for speaker
 	TIM2->CCR3 = 500;
