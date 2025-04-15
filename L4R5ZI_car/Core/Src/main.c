@@ -115,7 +115,9 @@ int main(void)
 	char x_str[100];
 	char y_str[100];
 	char z_str[100];
-	char adc_str[100];
+	char adc_str[8];
+
+	char tofStr[8];
 
 	// pwm for speaker
 	TIM2->CCR3 = 500;
@@ -164,42 +166,41 @@ int main(void)
 	if (ret != HAL_OK) { continue; }
 	glove_mode = buf[0];
 
-	ret = HAL_UART_Receive(&huart5, buf, 40, 1000);
-	if (ret != HAL_OK) { continue; }
-
-	// Parse accelerometer values
-	int i = 0;
-	int j = 0;
-	while(buf[i] != '\0') {
-		x_str[j] = buf[i];
-		++j;
-		++i;
-	}
-	x_str[j] = '\0';
-	j = 0;
-	i = 8;
-	while(buf[i] != '\0') {
-		y_str[j] = buf[i];
-		++j;
-		++i;
-	}
-	y_str[j] = '\0';
-	j = 0;
-	i = 16;
-	while(buf[i] != '\0') {
-		z_str[j] = buf[i];
-		++j;
-		++i;
-	}
-	z_str[j] = '\0';
-
-	x_val = atoi(x_str);
-	y_val = atoi(y_str);
-	z_val = atoi(z_str);
-
-	if (glove_mode == 0)
+	if (glove_mode == '0')
 	{
-		// Control car with accelerometer
+		// Accelerometer values (8+8+8=24) = 24 bytes
+		ret = HAL_UART_Receive(&huart5, buf, 24, 1000);
+		if (ret != HAL_OK) { continue; }
+
+		// Parse accelerometer values
+		int i = 0;
+		int j = 0;
+		while(buf[i] != '\0') {
+			x_str[j] = buf[i];
+			++j;
+			++i;
+		}
+		x_str[j] = '\0';
+		j = 0;
+		i = 8;
+		while(buf[i] != '\0') {
+			y_str[j] = buf[i];
+			++j;
+			++i;
+		}
+		y_str[j] = '\0';
+		j = 0;
+		i = 16;
+		while(buf[i] != '\0') {
+			z_str[j] = buf[i];
+			++j;
+			++i;
+		}
+		z_str[j] = '\0';
+
+		x_val = atoi(x_str);
+		y_val = atoi(y_str);
+		z_val = atoi(z_str);
 
 		// Convert accelerometer values to pwm
 		// Note: range: 500-12500
@@ -254,7 +255,7 @@ int main(void)
 		// TIME CHANNEL 4 = IN4
 
 		// send pwm
-  		if (nMotMixL < 0)
+		if (nMotMixL < 0)
 		{
 			TIM3->CCR3 = CCRL;
 			TIM3->CCR4 = 0;
@@ -283,10 +284,24 @@ int main(void)
 			HAL_TIM_PWM_Stop(&htim2, TIM_CHANNEL_3);
 		}
 	}
-	else if (glove_mode == 1)
+	else if (glove_mode == '1')
 	{
-		// Control arm with accelerometer
-		// TODO: Change to control arm with ToF sensor
+		// TOF Values (8) + Flex sensor values (8) = 16 bytes
+		ret = HAL_UART_Receive(&huart5, buf, 16, 1000);
+		if (ret != HAL_OK) { continue; }
+
+//		TIM3->CCR1 = 0;
+//		TIM3->CCR2 = 0;
+//		TIM3->CCR3 = 0;
+//		TIM3->CCR4 = 0;
+
+		// controls arm with accelerometer
+//		y_val = (abs(y_val) > 12000) ? (y_val < 0 ? -12000 : 12000) : y_val;
+//		y_val = (abs(y_val) < 1000) ? 0 : y_val;
+//		y_val = abs(y_val);
+
+//		float normalized_y = (y_val - 1000.0)/11000.0;
+//		ArmPos(normalized_y * 100.0);
 
 		/*
 		 * ARM IDs:
@@ -297,19 +312,16 @@ int main(void)
 		 * 5: Shoulder pitch (?)
 		 * 6: Shoulder yaw (?)
 		 */
-		TIM3->CCR1 = 0;
-		TIM3->CCR2 = 0;
-		TIM3->CCR3 = 0;
-		TIM3->CCR4 = 0;
-		y_val = (abs(y_val) > 12000) ? (y_val < 0 ? -12000 : 12000) : y_val;
-		y_val = (abs(y_val) < 1000) ? 0 : y_val;
-		y_val = abs(y_val);
 
-		float normalized_y = (y_val - 1000.0)/11000.0;
-		ArmPos(normalized_y * 100.0);
+
+		// TODO: Change to control arm with ToF sensor
+
+		// Receive tof values
+		memcpy(tof_str, buf, 8);
+		int tofDistance = atoi(tof_str);
 
 		// Receive flex sensor values
-		memcpy(adc_str, buf+24, 16);
+		memcpy(adc_str, buf+8, 8);
 
 		// Range for flex sensor: 1400 (open) - 2000 (closed) TODO: Might have to change this range for opening/closing hand
 		int adc_val = atoi(adc_str);
@@ -317,7 +329,19 @@ int main(void)
 
 		float normalized_adc = (adc_val - 1400.0) / 600.0;
 		LX16ABus_set_servo(1, normalized_adc * 240.0, 500);
-		HAL_Delay(200); // TODO: Do we even need this delay?
+		HAL_Delay(100); // TODO: Do we even need this delay?
+	}
+
+
+	if (glove_mode == 0)
+	{
+		// Control car with accelerometer
+
+
+	}
+	else if (glove_mode == 1)
+	{
+
 	}
     /* USER CODE END WHILE */
 
