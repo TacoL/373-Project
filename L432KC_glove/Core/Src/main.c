@@ -94,10 +94,6 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 	else if (GPIO_Pin == Calibrate_Pin)
 	{
 		calibrateFlag = 1;
-
-		// Calibrate TOF Sensor
-
-		// TODO: Should we calibrate the flex sensor value too?
 	}
 }
 /* USER CODE END 0 */
@@ -203,6 +199,8 @@ int main(void)
 		accel_zoffset = z_val;
 
 		// TODO: Calibrate TOF Sensor
+
+		// TODO: Should we calibrate the flex sensor value too?
 
 		// Reset calibrate flag
 		calibrateFlag = 0;
