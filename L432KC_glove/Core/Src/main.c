@@ -257,6 +257,12 @@ int main(void)
 
 		// Start Character (1) + Glove Mode (1) + TOF Values (8) + Flex sensor values (8) = 18 bytes
 		HAL_UART_Transmit(&huart2, (const uint8_t *)final_send, 18, 0xFFFF);
+
+		LiquidCrystal_setCursor(0, 1);
+		LiquidCrystal_print("ADC:");
+		LiquidCrystal_print(adc_str);
+	//	LiquidCrystal_print("ToF:");
+	//	LiquidCrystal_print(x_send);
 	}
 
     /* USER CODE END WHILE */

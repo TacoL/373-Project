@@ -318,17 +318,17 @@ int main(void)
 
 		// Receive tof values
 		memcpy(tof_str, buf, 8);
-		int tofDistance = atoi(tof_str);
+		//int tofDistance = atoi(tof_str);
 
 		// Receive flex sensor values
 		memcpy(adc_str, buf+8, 8);
 
 		// Range for flex sensor: 1400 (open) - 2000 (closed) TODO: Might have to change this range for opening/closing hand
 		int adc_val = atoi(adc_str);
-		adc_val = (adc_val < 1400) ? 1400 : (adc_val > 2000 ? 2000 : adc_val);
+		adc_val = (adc_val < 700) ? 700 : (adc_val > 1400 ? 1400 : adc_val);
 
-		float normalized_adc = (adc_val - 1400.0) / 600.0;
-		LX16ABus_set_servo(1, normalized_adc * 240.0, 500);
+		float normalized_adc = (adc_val - 700.0) / 700.0;
+		LX16ABus_set_servo(1, normalized_adc * 240.0, 200);
 		HAL_Delay(100); // TODO: Do we even need this delay?
 	}
 
