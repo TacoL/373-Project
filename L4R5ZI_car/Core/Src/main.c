@@ -290,19 +290,6 @@ int main(void)
 		ret = HAL_UART_Receive(&huart5, buf, 16, 1000);
 		if (ret != HAL_OK) { continue; }
 
-//		TIM3->CCR1 = 0;
-//		TIM3->CCR2 = 0;
-//		TIM3->CCR3 = 0;
-//		TIM3->CCR4 = 0;
-
-		// controls arm with accelerometer
-//		y_val = (abs(y_val) > 12000) ? (y_val < 0 ? -12000 : 12000) : y_val;
-//		y_val = (abs(y_val) < 1000) ? 0 : y_val;
-//		y_val = abs(y_val);
-
-//		float normalized_y = (y_val - 1000.0)/11000.0;
-//		ArmPos(normalized_y * 100.0);
-
 		/*
 		 * ARM IDs:
 		 * 1: Open/Close Hand
@@ -313,35 +300,21 @@ int main(void)
 		 * 6: Shoulder yaw (?)
 		 */
 
-
-		// TODO: Change to control arm with ToF sensor
-
-		// Receive tof values
+		// Range for arm: -250 to 250 (mm)
 		memcpy(tof_str, buf, 8);
-		//int tofDistance = atoi(tof_str);
-
-		// Receive flex sensor values
-		memcpy(adc_str, buf+8, 8);
+		int tofDistance = atoi(tof_str);
+		tofDistance = (tofDistance < -250) ? -250 : (tofDistance > 250 ? 250 : tofDistance);
+		float normalized_tof = (tofDistance + 250.0)/500.0;
+		ArmPos(normalized_tof * 100.0);
 
 		// Range for flex sensor: 1400 (open) - 2000 (closed) TODO: Might have to change this range for opening/closing hand
+		memcpy(adc_str, buf+8, 8);
 		int adc_val = atoi(adc_str);
 		adc_val = (adc_val < 700) ? 700 : (adc_val > 1400 ? 1400 : adc_val);
-
 		float normalized_adc = (adc_val - 700.0) / 700.0;
 		LX16ABus_set_servo(1, normalized_adc * 240.0, 200);
+
 		HAL_Delay(100); // TODO: Do we even need this delay?
-	}
-
-
-	if (glove_mode == 0)
-	{
-		// Control car with accelerometer
-
-
-	}
-	else if (glove_mode == 1)
-	{
-
 	}
     /* USER CODE END WHILE */
 
