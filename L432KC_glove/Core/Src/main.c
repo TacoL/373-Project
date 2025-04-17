@@ -46,6 +46,9 @@ uint8_t calibrateFlag = 0;
 #define ADC_BUFFER_LENGTH 2
 uint16_t adc_buffer[ADC_BUFFER_LENGTH];
 
+// TOF Offset
+uint16_t tofOffset = 0;
+
 /*
  * Glove modes
  * 0: Control car
@@ -156,6 +159,7 @@ int main(void)
 
 	// TODO: Enable TOF
 	char tofStr[8];
+	uint16_t tofDistance;
 
 	// Enable accelerometer
 	buf[0] = CTRL_REG1_A;
@@ -174,8 +178,9 @@ int main(void)
   HAL_ADC_Start_DMA(&hadc1, (uint32_t*)adc_buffer, ADC_BUFFER_LENGTH);
   while (1)
   {
-	HAL_Delay(100); // TODO: Do we need this delay?
+	HAL_Delay(200); // TODO: Do we need this delay?
 
+	// Set up UART message with start character '#' and glove_mode
 	char final_send[40];
 	final_send[0] = '#';
 
@@ -201,6 +206,17 @@ int main(void)
 	y_val = (buf[3] << 8) | buf[2];
 	z_val = (buf[5] << 8) | buf[4];
 
+	// Retrieve TOF values
+	status = VL53L4CD_CheckForDataReady(dev, &p_data_ready);
+	if (!p_data_ready) { continue; }
+
+	/* Read measured distance. RangeStatus = 0 means valid data */
+	VL53L4CD_GetResult(dev, &results);
+	tofDistance = results.distance_mm;
+
+	/* (Mandatory) Clear HW interrupt to restart measurements */
+	VL53L4CD_ClearInterrupt(dev);
+
 	// If need to calibrate
 	if (calibrateFlag == 1)
 	{
@@ -209,7 +225,7 @@ int main(void)
 		accel_yoffset = y_val;
 		accel_zoffset = z_val;
 
-		// TODO: Calibrate TOF Sensor
+		tofOffset = tofDistance;
 
 		// TODO: Should we calibrate the flex sensor value too?
 
@@ -222,6 +238,8 @@ int main(void)
 	y_val -= accel_yoffset;
 	z_val -= accel_zoffset;
 	z_val += -19000;
+
+	tofDistance -= tofOffset;
 
 	if (glove_mode == 0)
 	{
@@ -244,45 +262,25 @@ int main(void)
 		LiquidCrystal_print(" | ");
 		LiquidCrystal_print("y:");
 		LiquidCrystal_print(y_send);
-//		LiquidCrystal_print("z:");
-//		LiquidCrystal_print(z_send);
-//		LiquidCrystal_print(" | ");
-//		LiquidCrystal_print(adc_str);
 	}
 	else if (glove_mode == 1)
 	{
-		// TODO: Implement TOF
-		status = VL53L4CD_CheckForDataReady(dev, &p_data_ready);
-
-		if(p_data_ready) {
-		/* Read measured distance. RangeStatus = 0 means valid data */
-		VL53L4CD_GetResult(dev, &results);
-
-		sprintf(tofStr, "%d", (int)results.distance_mm);
-
-
-		/* (Mandatory) Clear HW interrupt to restart measurements */
-			VL53L4CD_ClearInterrupt(dev);
-		}else{
-						HAL_Delay(5);
-		}
-
-		// Need to convert tof distance to tofStr
+		// Package ToF values
+		sprintf(tofStr, "%d", (int)tofDistance);
 		memcpy(final_send+2, tofStr, 8);
-		// Retrieve ADC values
-		// TODO: Right now only channel 6 works. Channel 11 has hardware issue probably.
+
+		// Retrieve ADC (flex sensor) values (Only channel 6 works. Channel 11 has hardware issue probably)
 		uint16_t ADC_ch6 = adc_buffer[0];  // Channel 6 (Rank 1)
 		uint16_t ADC_ch11 = adc_buffer[1]; // Channel 11 (Rank 2)
 
-		// Transmit ADC (flex sensor) values
+		// Package ADC values
 		sprintf(adc_str, "%d", ADC_ch6);
 		memcpy(final_send+10, adc_str, 8);
-
-		// TODO: Send TOF values
 
 		// Start Character (1) + Glove Mode (1) + TOF Values (8) + Flex sensor values (8) = 18 bytes
 		HAL_UART_Transmit(&huart2, (const uint8_t *)final_send, 18, 0xFFFF);
 
+		//Print to LCD Screen
 		LiquidCrystal_setCursor(0, 1);
 		LiquidCrystal_print("ADC:");
 		LiquidCrystal_print(adc_str);
