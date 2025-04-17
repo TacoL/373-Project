@@ -55,7 +55,7 @@
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/
-
+extern TIM_HandleTypeDef htim15;
 /* USER CODE BEGIN EV */
 
 /* USER CODE END EV */
@@ -197,6 +197,32 @@ void SysTick_Handler(void)
 /* For the available peripheral interrupt handler names,                      */
 /* please refer to the startup file (startup_stm32l4xx.s).                    */
 /******************************************************************************/
+
+/**
+  * @brief This function handles TIM1 break interrupt and TIM15 global interrupt.
+  */
+void TIM1_BRK_TIM15_IRQHandler(void)
+{
+  /* USER CODE BEGIN TIM1_BRK_TIM15_IRQn 0 */
+  static int state = 0; // 0 = rising edge interrupt, 1 = falling edge interrupt
+  /* USER CODE END TIM1_BRK_TIM15_IRQn 0 */
+  HAL_TIM_IRQHandler(&htim15);
+  /* USER CODE BEGIN TIM1_BRK_TIM15_IRQn 1 */
+  if (state == 0)
+  {
+	  TIM15->CNT = 0;
+	  TIM15->CCER &= ~(0b1010);
+	  TIM15->CCER |= 0b0010;
+	  state = 1;
+  }
+  else
+  {
+	  ultraCounter = TIM15->CNT;
+	  TIM15->CCER &= ~(0b1010);
+	  state = 0;
+  }
+  /* USER CODE END TIM1_BRK_TIM15_IRQn 1 */
+}
 
 /* USER CODE BEGIN 1 */
 
