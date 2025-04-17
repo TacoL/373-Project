@@ -53,7 +53,7 @@ UART_HandleTypeDef huart5;
 UART_HandleTypeDef huart2;
 
 /* USER CODE BEGIN PV */
-ultraCounter = 0;
+int ultraCounter = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
