@@ -220,6 +220,19 @@ int main(void)
 		y_float = y_float * 1023;
 		z_float = z_float * 1023;
 
+//		// TODO: Get ultrasonic sensor distance
+//		float ultraDistance = 0;
+//		// Implement ultrasonic sensing here. Maybe call a function?
+//
+//		// TODO: Change 20 to a suitable range
+//		if (ultraDistance < 20)
+//		{
+//			// Set Joystick Y input (i.e. y_float) to zero if trying to go forward
+//			y_float = (y_float > 0) ? 0 : y_float;
+//
+//			// TODO: Make speaker beep?
+//		}
+
 		float nMotPremixL, nMotPremixR, nPivSpeed, fPivScale, nMotMixL, nMotMixR;
 
 		if (y_float >= 0) {
