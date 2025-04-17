@@ -22,6 +22,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "LiquidCrystal.h"
+#include "VL53L4CD_api.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -68,7 +69,11 @@ I2C_HandleTypeDef hi2c3;
 UART_HandleTypeDef huart2;
 
 /* USER CODE BEGIN PV */
-
+int status;
+volatile int IntCount;
+uint8_t p_data_ready;
+uint16_t dev, sensor_id;
+VL53L4CD_ResultsData_t results;		/* Results data from VL53L4CD */
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -79,7 +84,7 @@ static void MX_I2C3_Init(void);
 static void MX_USART2_UART_Init(void);
 static void MX_ADC1_Init(void);
 /* USER CODE BEGIN PFP */
-
+void get_data_by_polling(uint16_t dev);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -132,7 +137,13 @@ int main(void)
   MX_USART2_UART_Init();
   MX_ADC1_Init();
   /* USER CODE BEGIN 2 */
-
+  dev = 0x52;
+  status = VL53L4CD_GetSensorId(dev, &sensor_id);
+  	if(status || (sensor_id != 0xebaa))
+  	{
+  		return 2;
+  	}
+  	status = VL53L4CD_SensorInit(dev);
     // Initialize variables
     HAL_StatusTypeDef ret;
   	uint8_t buf[50];
@@ -155,7 +166,7 @@ int main(void)
 
 	// Enable screen
 	LiquidCrystal_init(0);
-
+	status = VL53L4CD_StartRanging(dev);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -241,9 +252,23 @@ int main(void)
 	else if (glove_mode == 1)
 	{
 		// TODO: Implement TOF
+		status = VL53L4CD_CheckForDataReady(dev, &p_data_ready);
+
+		if(p_data_ready) {
+		/* Read measured distance. RangeStatus = 0 means valid data */
+		VL53L4CD_GetResult(dev, &results);
+
+		sprintf(tofStr, "%d", (int)results.distance_mm);
+
+
+		/* (Mandatory) Clear HW interrupt to restart measurements */
+			VL53L4CD_ClearInterrupt(dev);
+		}else{
+						HAL_Delay(5);
+		}
+
 		// Need to convert tof distance to tofStr
 		memcpy(final_send+2, tofStr, 8);
-
 		// Retrieve ADC values
 		// TODO: Right now only channel 6 works. Channel 11 has hardware issue probably.
 		uint16_t ADC_ch6 = adc_buffer[0];  // Channel 6 (Rank 1)
@@ -261,8 +286,9 @@ int main(void)
 		LiquidCrystal_setCursor(0, 1);
 		LiquidCrystal_print("ADC:");
 		LiquidCrystal_print(adc_str);
-	//	LiquidCrystal_print("ToF:");
-	//	LiquidCrystal_print(x_send);
+		LiquidCrystal_print("|");
+		LiquidCrystal_print("ToF:");
+		LiquidCrystal_print(tofStr);
 	}
 
     /* USER CODE END WHILE */
