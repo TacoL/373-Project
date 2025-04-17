@@ -140,26 +140,23 @@ int main(void)
   MX_USART2_UART_Init();
   MX_ADC1_Init();
   /* USER CODE BEGIN 2 */
-  dev = 0x52;
-  status = VL53L4CD_GetSensorId(dev, &sensor_id);
-  	if(status || (sensor_id != 0xebaa))
-  	{
-  		return 2;
-  	}
-  	status = VL53L4CD_SensorInit(dev);
-    // Initialize variables
-    HAL_StatusTypeDef ret;
-  	uint8_t buf[50];
+	dev = 0x52;
+	status = VL53L4CD_GetSensorId(dev, &sensor_id);
+	if(status || (sensor_id != 0xebaa)) { return 2; }
+	status = VL53L4CD_SensorInit(dev);
 
-  	int16_t x_val, y_val, z_val;
+	// Initialize variables
+	HAL_StatusTypeDef ret;
+	uint8_t buf[50];
+
+	int16_t x_val, y_val, z_val;
 	char x_send[8];
 	char y_send[8];
 	char z_send[8];
 	char adc_str[8];
 
-	// TODO: Enable TOF
 	char tofStr[8];
-	uint16_t tofDistance;
+	int16_t tofDistance;
 
 	// Enable accelerometer
 	buf[0] = CTRL_REG1_A;
