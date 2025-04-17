@@ -188,7 +188,7 @@ int main(void)
   HAL_ADC_Start_DMA(&hadc1, (uint32_t*)adc_buffer, ADC_BUFFER_LENGTH);
   while (1)
   {
-	HAL_Delay(200); // TODO: Do we need this delay?
+	HAL_Delay(100);
 
 	// Set up UART message with start character '#' and glove_mode
 	char final_send[40];
