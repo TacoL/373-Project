@@ -93,15 +93,28 @@ void get_data_by_polling(uint16_t dev);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 
+uint32_t debounceLength = 200; // Debounce length in milliseconds
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
+	static uint32_t mode_lastTick = 0;
+	static uint32_t calibrate_lastTick = 0;
+	uint32_t current_tick = HAL_GetTick();
+
 	if (GPIO_Pin == Mode_Pin)
 	{
-		glove_mode = (glove_mode == 0) ? 1 : 0;
+		if (current_tick - mode_lastTick > debounceLength)
+		{
+			glove_mode = (glove_mode == 0) ? 1 : 0;
+			mode_lastTick = current_tick;
+		}
 	}
 	else if (GPIO_Pin == Calibrate_Pin)
 	{
-		calibrateFlag = 1;
+		if (current_tick - calibrate_lastTick > debounceLength)
+		{
+			calibrateFlag = 1;
+			calibrate_lastTick = current_tick;
+		}
 	}
 }
 /* USER CODE END 0 */
@@ -281,7 +294,7 @@ int main(void)
 		LiquidCrystal_setCursor(0, 1);
 		LiquidCrystal_print("ADC:");
 		LiquidCrystal_print(adc_str);
-		LiquidCrystal_print("|");
+		LiquidCrystal_print(" | ");
 		LiquidCrystal_print("ToF:");
 		LiquidCrystal_print(tofStr);
 	}
