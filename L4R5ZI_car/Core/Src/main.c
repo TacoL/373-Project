@@ -215,8 +215,6 @@ int main(void)
 		z_val = atoi(z_str);
 
 		// Convert accelerometer values to pwm
-		// Note: range: 500-12500
-
 		x_val = (abs(x_val) > 12500) ? (x_val < 0 ? -12000 : 12000) : x_val;
 		x_val = (abs(x_val) < 1000) ? 0 : x_val;
 		y_val = (abs(y_val) > 12500) ? (y_val < 0 ? -12000 : 12000) : y_val;
@@ -232,15 +230,17 @@ int main(void)
 		y_float = y_float * 1023;
 		z_float = z_float * 1023;
 
-//		float ultraDistance = ultraCounter / 144.0; // gives distance in inches
-//		// TODO: Change 20 to a suitable range
-//		if (ultraDistance < 20)
-//		{
-//			// Set Joystick Y input (i.e. y_float) to zero if trying to go forward
-//			y_float = (y_float > 0) ? 0 : y_float;
-//
-//			// TODO: Make speaker beep?
-//		}
+		float ultraDistance = ultraCounter / 144.0; // gives distance in inches
+		// TODO: Change 10 to a suitable range
+		if (ultraDistance < 10)
+		{
+			// Set Joystick Y input (i.e. y_float) to zero if trying to go forward
+			y_float = (y_float < 0) ? 0 : y_float;
+
+			// TODO: Make speaker beep?
+//			HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_3);
+		}
+
 
 		float nMotPremixL, nMotPremixR, nPivSpeed, fPivScale, nMotMixL, nMotMixR;
 
@@ -328,21 +328,19 @@ int main(void)
 		 * 6: Shoulder yaw (?)
 		 */
 
-		// Range for arm: -100 to 100 (mm)
+		// Arm
 		memcpy(tof_str, buf, 8);
 		int tofDistance = atoi(tof_str);
 		tofDistance = (tofDistance < ARM_MIN) ? ARM_MIN : (tofDistance > ARM_MAX ? ARM_MAX : tofDistance);
 		float normalized_tof = (tofDistance - ARM_MIN)/(ARM_MAX - ARM_MIN);
 		ArmPos(normalized_tof * 100.0);
 
-		// Range for flex sensor: 1400 (open) - 2000 (closed) TODO: Might have to change this range for opening/closing hand
+		// Open/Close Hand (Flex Sensor)
 		memcpy(adc_str, buf+8, 8);
 		int adc_val = atoi(adc_str);
 		adc_val = (adc_val < FLEX_MIN) ? FLEX_MIN : (adc_val > FLEX_MAX ? FLEX_MAX : adc_val);
 		float normalized_adc = (adc_val - FLEX_MIN) / (FLEX_MAX - FLEX_MIN);
 		LX16ABus_set_servo(1, normalized_adc * 240.0, 120);
-
-		//HAL_Delay(100); // TODO: Do we even need this delay?
 	}
     /* USER CODE END WHILE */
 
@@ -676,7 +674,7 @@ static void MX_TIM16_Init(void)
     Error_Handler();
   }
   sConfigOC.OCMode = TIM_OCMODE_PWM1;
-  sConfigOC.Pulse = 0;
+  sConfigOC.Pulse = 1;
   sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
   sConfigOC.OCNPolarity = TIM_OCNPOLARITY_HIGH;
   sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;

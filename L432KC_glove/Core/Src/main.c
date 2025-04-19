@@ -191,7 +191,6 @@ int main(void)
   int screenCounter = 0;
   while (1)
   {
-	//HAL_Delay(100);
 	screenCounter++;
 
 	// Set up UART message with start character '#' and glove_mode
@@ -235,8 +234,6 @@ int main(void)
 		accel_zoffset = z_val;
 
 		tofOffset = tofDistance;
-
-		// TODO: Should we calibrate the flex sensor value too?
 
 		// Reset calibrate flag
 		calibrateFlag = 0;
