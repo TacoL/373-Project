@@ -56,6 +56,8 @@ uint16_t tofOffset = 0;
  */
 uint8_t glove_mode = 0;
 
+#define ScreenRefreshCount 5
+
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -186,9 +188,11 @@ int main(void)
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   HAL_ADC_Start_DMA(&hadc1, (uint32_t*)adc_buffer, ADC_BUFFER_LENGTH);
+  int screenCounter = 0;
   while (1)
   {
-	HAL_Delay(100);
+	//HAL_Delay(100);
+	screenCounter++;
 
 	// Set up UART message with start character '#' and glove_mode
 	char final_send[40];
@@ -199,11 +203,6 @@ int main(void)
 	modeStr[1] = '\0';
 
 	final_send[1] = modeStr[0];
-
-	//Print to LCD Screen
-	LiquidCrystal_clear();
-	LiquidCrystal_print("Mode: ");
-	LiquidCrystal_print(modeStr);
 
 	// Retrieve accelerometer values
 	buf[0] = lower_x;
@@ -265,13 +264,21 @@ int main(void)
 		// Start Character (1) + Glove Mode (1) + Accelerometer values (8+8+8=24) = 26 bytes
 		HAL_UART_Transmit(&huart2, (const uint8_t *)final_send, 26, 0xFFFF);
 
-		//Print to LCD Screen
-		LiquidCrystal_setCursor(0, 1);
-		LiquidCrystal_print("x:");
-		LiquidCrystal_print(x_send);
-		LiquidCrystal_print(" | ");
-		LiquidCrystal_print("y:");
-		LiquidCrystal_print(y_send);
+		if (screenCounter >= ScreenRefreshCount)
+		{
+			//Print to LCD Screen
+			LiquidCrystal_clear();
+			LiquidCrystal_print("Mode: ");
+			LiquidCrystal_print(modeStr);
+
+			LiquidCrystal_setCursor(0, 1);
+			LiquidCrystal_print("x:");
+			LiquidCrystal_print(x_send);
+			LiquidCrystal_print(" | ");
+			LiquidCrystal_print("y:");
+			LiquidCrystal_print(y_send);
+			screenCounter = 0;
+		}
 	}
 	else if (glove_mode == 1)
 	{
@@ -290,13 +297,20 @@ int main(void)
 		// Start Character (1) + Glove Mode (1) + TOF Values (8) + Flex sensor values (8) = 18 bytes
 		HAL_UART_Transmit(&huart2, (const uint8_t *)final_send, 18, 0xFFFF);
 
-		//Print to LCD Screen
-		LiquidCrystal_setCursor(0, 1);
-		LiquidCrystal_print("ADC:");
-		LiquidCrystal_print(adc_str);
-		LiquidCrystal_print(" | ");
-		LiquidCrystal_print("ToF:");
-		LiquidCrystal_print(tofStr);
+		if (screenCounter >= ScreenRefreshCount)
+		{
+			//Print to LCD Screen
+			LiquidCrystal_clear();
+			LiquidCrystal_print("Mode: ");
+			LiquidCrystal_print(modeStr);
+
+			LiquidCrystal_setCursor(0, 1);
+			LiquidCrystal_print("ADC:");
+			LiquidCrystal_print(adc_str);
+			LiquidCrystal_print("|");
+			LiquidCrystal_print("ToF:");
+			LiquidCrystal_print(tofStr);
+		}
 	}
 
     /* USER CODE END WHILE */

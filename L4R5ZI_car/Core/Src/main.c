@@ -34,7 +34,11 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
+#define FLEX_MIN 550.0
+#define FLEX_MAX 1000.0
 
+#define ARM_MIN -150.0
+#define ARM_MAX 150.0
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -151,8 +155,6 @@ int main(void)
 	// Enable arm
 	// Note: Baud Rate = 115200
 	LX16ABus_init(&huart2);
-
-	int k = 0;
 
 	/*
 	 * Glove modes
@@ -306,6 +308,12 @@ int main(void)
 	}
 	else if (glove_mode == '1')
 	{
+		// Set car pwm to zero
+		TIM3->CCR1 = 0;
+		TIM3->CCR2 = 0;
+		TIM3->CCR3 = 0;
+		TIM3->CCR4 = 0;
+
 		// TOF Values (8) + Flex sensor values (8) = 16 bytes
 		ret = HAL_UART_Receive(&huart5, buf, 16, 1000);
 		if (ret != HAL_OK) { continue; }
@@ -320,21 +328,21 @@ int main(void)
 		 * 6: Shoulder yaw (?)
 		 */
 
-		// Range for arm: -250 to 250 (mm)
+		// Range for arm: -100 to 100 (mm)
 		memcpy(tof_str, buf, 8);
 		int tofDistance = atoi(tof_str);
-		tofDistance = (tofDistance < -250) ? -250 : (tofDistance > 250 ? 250 : tofDistance);
-		float normalized_tof = (tofDistance + 250.0)/500.0;
+		tofDistance = (tofDistance < ARM_MIN) ? ARM_MIN : (tofDistance > ARM_MAX ? ARM_MAX : tofDistance);
+		float normalized_tof = (tofDistance - ARM_MIN)/(ARM_MAX - ARM_MIN);
 		ArmPos(normalized_tof * 100.0);
 
 		// Range for flex sensor: 1400 (open) - 2000 (closed) TODO: Might have to change this range for opening/closing hand
 		memcpy(adc_str, buf+8, 8);
 		int adc_val = atoi(adc_str);
-		adc_val = (adc_val < 700) ? 700 : (adc_val > 1400 ? 1400 : adc_val);
-		float normalized_adc = (adc_val - 700.0) / 700.0;
-		LX16ABus_set_servo(1, normalized_adc * 240.0, 200);
+		adc_val = (adc_val < FLEX_MIN) ? FLEX_MIN : (adc_val > FLEX_MAX ? FLEX_MAX : adc_val);
+		float normalized_adc = (adc_val - FLEX_MIN) / (FLEX_MAX - FLEX_MIN);
+		LX16ABus_set_servo(1, normalized_adc * 240.0, 120);
 
-		HAL_Delay(100); // TODO: Do we even need this delay?
+		//HAL_Delay(100); // TODO: Do we even need this delay?
 	}
     /* USER CODE END WHILE */
 
