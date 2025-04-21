@@ -131,7 +131,7 @@ int LX16ABus_write_no_retry(uint8_t cmd, const uint8_t *params, int param_cnt,
 void ArmPos(int pos){
 	LX16ABus_set_servo(5, 200-((pos/100.0)*80), 120);
 	LX16ABus_set_servo(4, 180-((pos/100.0)*60), 120);
-	LX16ABus_set_servo(3, 180-((pos/100.0)*90), 120);
+	LX16ABus_set_servo(3, 165-((pos/100.0)*90), 120);
 	LX16ABus_set_servo(2, 180, 120);
 	LX16ABus_set_servo(6, 30, 120);
 

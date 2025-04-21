@@ -129,6 +129,9 @@ int main(void)
 
 	char tof_str[8];
 
+    int HonkFlag = 0;
+
+
 	// pwm for speaker
 	TIM2->CCR3 = 500;
 
@@ -232,13 +235,17 @@ int main(void)
 
 		float ultraDistance = ultraCounter / 144.0; // gives distance in inches
 		// TODO: Change 10 to a suitable range
-		if (ultraDistance < 10)
+		if (ultraDistance < 6)
 		{
 			// Set Joystick Y input (i.e. y_float) to zero if trying to go forward
 			y_float = (y_float < 0) ? 0 : y_float;
 
 			// TODO: Make speaker beep?
 //			HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_3);
+			HonkFlag = 1;
+		}
+		else{
+			HonkFlag = 0;
 		}
 
 
@@ -300,10 +307,22 @@ int main(void)
 
 		// Speaker part
 		if((nMotMixR>0)&&(nMotMixL>0)&&(__HAL_TIM_GET_COUNTER(&htim4)>5000)){
+		    //set pwm2 prsc to 1000hz out
+			__HAL_TIM_SET_PRESCALER(&htim2,3);
 			HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_3);
+			HAL_GPIO_WritePin(GPIOB,GPIO_PIN_8,1);
 		}
+	    else if (HonkFlag){
+	    	//set pwm2 prsc to 440hz out
+			__HAL_TIM_SET_PRESCALER(&htim2,8);
+	    	HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_3);
+			HAL_GPIO_WritePin(GPIOB,GPIO_PIN_8,0);
+
+	    }
 		else{
 			HAL_TIM_PWM_Stop(&htim2, TIM_CHANNEL_3);
+			HAL_GPIO_WritePin(GPIOB,GPIO_PIN_8,0);
+
 		}
 	}
 	else if (glove_mode == '1')
@@ -413,7 +432,7 @@ static void MX_TIM2_Init(void)
 
   /* USER CODE END TIM2_Init 1 */
   htim2.Instance = TIM2;
-  htim2.Init.Prescaler = 18;
+  htim2.Init.Prescaler = 8;
   htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
   htim2.Init.Period = 1000;
   htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
@@ -821,7 +840,7 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOD_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOB, LD3_Pin|LD2_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOB, LD3_Pin|LD2_Pin|GPIO_PIN_8, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(USB_PowerSwitchOn_GPIO_Port, USB_PowerSwitchOn_Pin, GPIO_PIN_RESET);
@@ -832,8 +851,8 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(B1_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : LD3_Pin LD2_Pin */
-  GPIO_InitStruct.Pin = LD3_Pin|LD2_Pin;
+  /*Configure GPIO pins : LD3_Pin LD2_Pin PB8 */
+  GPIO_InitStruct.Pin = LD3_Pin|LD2_Pin|GPIO_PIN_8;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
