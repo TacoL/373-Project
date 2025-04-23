@@ -34,8 +34,8 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-#define FLEX_MIN 550.0
-#define FLEX_MAX 1000.0
+#define FLEX_MIN 300.0
+#define FLEX_MAX 750.0
 
 #define ARM_MIN -150.0
 #define ARM_MAX 150.0
@@ -130,7 +130,7 @@ int main(void)
 	char tof_str[8];
 
     int HonkFlag = 0;
-
+    int BackFlag = 0;
 
 	// pwm for speaker
 	TIM2->CCR3 = 500;
@@ -180,6 +180,18 @@ int main(void)
 	ret = HAL_UART_Receive(&huart5, buf, 1, 1000);
 	if (ret != HAL_OK) { continue; }
 	glove_mode = buf[0];
+
+	float ultraDistance = ultraCounter / 144.0; // gives distance in inches
+	// TODO: Change 10 to a suitable range
+	if (ultraDistance < 6)
+	{
+		// TODO: Make speaker beep?
+		//			HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_3);
+		HonkFlag = 1;
+	}
+	else{
+		HonkFlag = 0;
+	}
 
 	if (glove_mode == '0')
 	{
@@ -233,19 +245,12 @@ int main(void)
 		y_float = y_float * 1023;
 		z_float = z_float * 1023;
 
-		float ultraDistance = ultraCounter / 144.0; // gives distance in inches
 		// TODO: Change 10 to a suitable range
 		if (ultraDistance < 6)
 		{
 			// Set Joystick Y input (i.e. y_float) to zero if trying to go forward
 			y_float = (y_float < 0) ? 0 : y_float;
 
-			// TODO: Make speaker beep?
-//			HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_3);
-			HonkFlag = 1;
-		}
-		else{
-			HonkFlag = 0;
 		}
 
 
@@ -311,18 +316,19 @@ int main(void)
 			__HAL_TIM_SET_PRESCALER(&htim2,3);
 			HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_3);
 			HAL_GPIO_WritePin(GPIOB,GPIO_PIN_8,1);
+			BackFlag = 1;
 		}
 	    else if (HonkFlag){
 	    	//set pwm2 prsc to 440hz out
 			__HAL_TIM_SET_PRESCALER(&htim2,8);
 	    	HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_3);
 			HAL_GPIO_WritePin(GPIOB,GPIO_PIN_8,0);
-
+			BackFlag = 0;
 	    }
 		else{
 			HAL_TIM_PWM_Stop(&htim2, TIM_CHANNEL_3);
 			HAL_GPIO_WritePin(GPIOB,GPIO_PIN_8,0);
-
+			BackFlag = 0;
 		}
 	}
 	else if (glove_mode == '1')
@@ -360,6 +366,23 @@ int main(void)
 		adc_val = (adc_val < FLEX_MIN) ? FLEX_MIN : (adc_val > FLEX_MAX ? FLEX_MAX : adc_val);
 		float normalized_adc = (adc_val - FLEX_MIN) / (FLEX_MAX - FLEX_MIN);
 		LX16ABus_set_servo(1, normalized_adc * 240.0, 120);
+
+
+		//honk in mode 1
+		if (BackFlag)
+		{
+			HAL_TIM_PWM_Stop(&htim2, TIM_CHANNEL_3);
+			HAL_GPIO_WritePin(GPIOB,GPIO_PIN_8,0);
+		}
+		else if(HonkFlag){
+			__HAL_TIM_SET_PRESCALER(&htim2,8);
+			HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_3);
+			HAL_GPIO_WritePin(GPIOB,GPIO_PIN_8,0);
+		}
+		else{
+			HAL_TIM_PWM_Stop(&htim2, TIM_CHANNEL_3);
+			HAL_GPIO_WritePin(GPIOB,GPIO_PIN_8,0);
+		}
 	}
     /* USER CODE END WHILE */
 
